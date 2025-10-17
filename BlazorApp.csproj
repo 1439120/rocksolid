@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Firestore package -->
+    <PackageReference Include="Google.Cloud.Firestore" Version="3.6.0" />
+    
+    <!-- Firebase Authentication (optional but recommended) -->
+    <!-- <PackageReference Include="FirebaseAuthentication" Version="2.2.0" /> -->
+    
+    <!-- For configuration -->
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>
