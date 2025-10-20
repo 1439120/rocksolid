@@ -1,0 +1,72 @@
+@using BlazorApp.Models
+@rendermode InteractiveServer
+
+@if(Headers.Length == 0 || Rows.Count == 0){
+<table class="t-class table">
+    <thead class="t-head">
+        <tr>
+            <th>Borrower</th>
+            <th>Loan Amount</th>
+            <th>Outstanding Amount</th>
+            <th>Interest Rate</th>
+            <th>Monthly Payment</th>
+            <th>Status</th>
+            <th>Disbursement</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <div>Sara Johns</div>
+                <p>sarah.j@email.com</p>
+            </td>
+            <td>R50000</td>
+            <td>R42000</td>
+            <td>5.5%</td>
+            <td>R952</td>
+            <td>Active</td>
+            <td>July 14, 2024</td>
+            <td>View</td>
+        </tr>
+    </tbody>
+</table>
+}
+else{
+<table class="t-class table">
+    <thead class="t-head">
+        <tr>
+            @foreach(var header in Headers){
+                <th>@header</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+            @foreach(var row in Rows){
+                <tr>
+                    <td>@row.Name</td>
+                    <td>@row.CreatedAt</td>
+                    <td>@row.RequestedAmount</td>
+                    <td>@row.Status</td>
+                    <td>
+                        <button disabled="@("Approved".Equals(row.Status))" class="btn btn-primary" @onclick="()=> row.Approve()">
+                            Approve
+                        </button>
+                    </td>
+                </tr>
+            }
+    </tbody>
+</table>
+}
+
+@code {
+    [Parameter] public string[] Headers{get; set;} = [];
+    [Parameter] public List<Applicant> Rows{get; set;} = new();
+    [Parameter] public EventCallback<Applicant> OnApprove { get; set; }
+    string pressed ="Not pressed";
+     @* private Task ApproveRow(Applicant row)=> OnApprove.InvokeAsync(row); *@
+
+     private void ButtonPressed(){
+        pressed="Pressed";
+     }
+}

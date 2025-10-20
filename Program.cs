@@ -9,29 +9,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
-// Register Firestore services
-builder.Services.AddSingleton<FirestoreService>();
-builder.Services.AddScoped<StudentService>();
+// // Configure Firebase
+// var firebaseConfig = new FirebaseConfig();
+// builder.Configuration.GetSection("Firebase").Bind(firebaseConfig);
 
-// If using environment variables for configuration
-builder.Services.Configure<FirebaseConfig>(options =>
-{
-    options.ProjectId = builder.Configuration["FIREBASE_PROJECT_ID"] 
-                        ?? builder.Configuration["Firebase:ProjectId"] 
-                        ?? throw new InvalidOperationException("Firebase ProjectId is not configured");
-    
-    options.ApiKey = builder.Configuration["FIREBASE_API_KEY"] 
-                     ?? builder.Configuration["Firebase:ApiKey"] 
-                     ?? throw new InvalidOperationException("Firebase ApiKey is not configured");
-    
-    options.AuthDomain = builder.Configuration["FIREBASE_AUTH_DOMAIN"] 
-                         ?? builder.Configuration["Firebase:AuthDomain"] 
-                         ?? string.Empty;
-    
-    options.StorageBucket = builder.Configuration["FIREBASE_STORAGE_BUCKET"] 
-                            ?? builder.Configuration["Firebase:StorageBucket"] 
-                            ?? string.Empty;
-});
+// Register FirestoreService
+builder.Services.AddSingleton<FirestoreService>();
+builder.Services.AddScoped<StudentService>(); // Your other services
+
+
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

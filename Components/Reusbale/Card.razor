@@ -1,0 +1,27 @@
+@* In Components/Card.razor *@
+@namespace BlazorApp.Components.Reusbale
+
+@rendermode InteractiveServer
+
+<div class="border rounded-4 p-4 m-2 bg-white" style="width: 350px; box-shadow: 2px 2px lightblue;">
+    <div class="d-flex flex-row align-items-center justify-content-between gap-2">
+        <div>
+            <p class="fs-6 mb-0">@Title</p>
+            <div class="fs-4 fw-bold">@Value</div>
+        </div>
+        <div>
+            <Icon Name="@BiIcon" Alt="Clipboard Icon" Width="60" Color="@IconColor"/>
+        </div>
+    </div>
+    <div class="mt-2 text-secondary" style="font-size: 0.82rem;">
+        @Comment
+    </div>
+</div>
+
+@code{
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public IconName BiIcon { get; set; } = IconName.ClipboardDataFill;
+    [Parameter] public string Comment { get; set; } = "";
+    [Parameter] public string Value { get; set; } = "";
+    [Parameter] public string IconColor { get; set; } = "currentColor";
+}

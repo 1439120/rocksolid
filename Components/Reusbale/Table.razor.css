@@ -1,0 +1,24 @@
+.active{
+    background-color: rgb(188, 246, 188);
+    color: rgb(23, 239, 23);
+}
+
+.paid{
+    background-color: rgb(150, 150, 243);
+    color: rgb(39, 39, 251);
+}
+
+/* .t-class{
+    width: 100%;
+}
+
+.t-head{
+    background-color: rgb(196, 193, 193);
+    border-bottom: solid 0.4px rgb(111, 110, 110);
+}
+
+th{
+    padding: 3px 4px;
+    text-align: left;
+    font-weight: 500;
+} */

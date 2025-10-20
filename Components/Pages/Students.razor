@@ -3,13 +3,7 @@
 @using BlazorApp.Services
 @inject StudentService StudentService
 
-<h3>Student List</h3>
-
-<div class="mb-3">
-    <input @bind="newStudent.Name" placeholder="Name" class="form-control" />
-    <input @bind="newStudent.Email" placeholder="Email" class="form-control mt-2" />
-    <button @onclick="AddStudent" class="btn btn-primary mt-2">Add</button>
-</div>
+<h3>Students</h3>
 
 @if (students == null)
 {
@@ -17,66 +11,56 @@
 }
 else
 {
-    <div class="todo-list">
-        @foreach (var student in students)
-        {
-            <div class="card mb-2">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        @* <input type="checkbox" @bind="todo.IsCompleted" @onchange="@(() => ToggleTodo(todo))" />
-                        @todo.Title *@
-                        <input type="text" name="name" @bind="student.Name"/>
-                    </h5>
-                    <p class="card-text">@student.Email</p>
-                    <small>Date of Birth: @student.Birthday</small>
-                    <button @onclick="@(() => DeleteTodo(student.Id))" class="btn btn-danger btn-sm float-end">Delete</button>
-                </div>
-            </div>
-        }
-    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Course</th>
+                <th>Year</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var student in students)
+            {
+                <tr>
+                    <td>@student.FirstName @student.LastName</td>
+                    <td>@student.Email</td>
+                    <td>@student.Course</td>
+                    <td>@student.Year</td>
+                    <td>
+                        <button @onclick="@(() => EditStudent(student))" class="btn btn-sm btn-primary">Edit</button>
+                        <button @onclick="@(() => DeleteStudent(student.Id))" class="btn btn-sm btn-danger">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 
 @code {
     private List<Student> students = new();
-    private Student newStudent = new();
 
     protected override async Task OnInitializedAsync()
     {
         await LoadStudents();
-        
-        // Optional: Set up real-time listener
-        StudentService.ListenToTodos(async (snapshot) =>
-        {
-            students = snapshot.Documents
-                .Select(document => document.ConvertTo<Student>())
-                .ToList();
-            await InvokeAsync(StateHasChanged);
-        });
     }
 
     private async Task LoadStudents()
     {
-        students = await StudentService.GetAllTodosAsync();
+        students = await StudentService.GetAllStudentsAsync();
+        StateHasChanged();
     }
 
-    private async Task AddStudent()
+    private async Task DeleteStudent(string id)
     {
-        if (!string.IsNullOrWhiteSpace(newStudent.Name))
-        {
-            await StudentService.AddTodoAsync(newStudent);
-            newStudent = new Student(); // Reset form
-            await LoadStudents();
-        }
-    }
-
-    @* private async Task ToggleTodo(TodoItem todo)
-    {
-        await TodoService.UpdateTodoAsync(todo);
-    } *@
-
-    private async Task DeleteTodo(string id)
-    {
-        await StudentService.DeleteTodoAsync(id);
+        await StudentService.DeleteStudentAsync(id);
         await LoadStudents();
+    }
+
+    private void EditStudent(Student student)
+    {
+        // Navigate to edit page or open edit modal
     }
 }
