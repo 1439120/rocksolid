@@ -3,7 +3,9 @@ namespace BlazorApp.Models
 {
     public class Applicant{
         public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Username { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
@@ -16,7 +18,7 @@ namespace BlazorApp.Models
         public DateTime StartDate{get;set;}
         public DateTime EndDate{get;set;}
         public float RemainingAmount{get;set;}
-
+        public float LinkedInterest{get;set;}
          public void Approve(){
             Status = "Approved";
         }

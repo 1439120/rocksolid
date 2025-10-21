@@ -1,0 +1,29 @@
+
+
+<div class="card shadow-sm border-0 rounded-4 p-3" style="width: 450px;">
+    <div class="card-body">
+        <h4 class="card-title fw-bold mb-3 text-center" style="color: @TitleColor;">@Title</h4>
+        <ul class="list-unstyled text-secondary m-1 mb-4">
+            @* <li class="mb-2"><i class="bi bi-cash-coin me-2 text-success"></i> Borrow up to <strong>R25,000</strong></li>
+            <li class="mb-2"><i class="bi bi-clock me-2 text-info"></i> Get approved within <strong>24 hours</strong></li>
+            <li><i class="bi bi-shield-check me-2 text-warning"></i> Flexible repayment options</li> *@
+            @foreach(var item in LoanItems){
+                <li class="d-flex gap-3 m-1"> <Icon Name="@item.IconName" Color="@item.IconColor"/> <p class="m-0 p-0">@((MarkupString)item.Text)</p></li>
+            }
+        </ul>
+
+        <div class="w-100 d-flex justify-content-center">
+            <NavLink class="btn btn-primary rounded-pill fw-semibold" style="min-width: 150px;" href="/applications/create">
+                Apply Now
+            </NavLink>
+        </div>
+        
+    </div>
+</div>
+
+@code{
+    [Parameter] public string Title{get;set;}="";
+    [Parameter] public string TitleColor{get;set;}="";
+    [Parameter] public LoanFeature[] LoanItems{get;set;} = [];
+
+}

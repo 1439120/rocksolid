@@ -1,5 +1,6 @@
 @using BlazorApp.Models
-@rendermode InteractiveServer
+@* @rendermode InteractiveServer *@
+
 
 @if(Headers.Length == 0 || Rows.Count == 0){
 <table class="t-class table">
@@ -44,15 +45,11 @@ else{
     <tbody>
             @foreach(var row in Rows){
                 <tr>
-                    <td>@row.Name</td>
-                    <td>@row.CreatedAt</td>
-                    <td>@row.RequestedAmount</td>
-                    <td>@row.Status</td>
-                    <td>
-                        <button disabled="@("Approved".Equals(row.Status))" class="btn btn-primary" @onclick="()=> row.Approve()">
-                            Approve
-                        </button>
-                    </td>
+                    @foreach (var propName in PropertyNames)
+                        {
+                            <td>@GetPropertyValue(row, propName)</td>
+                        }
+                        <td><button class="btn btn-primary" @onclick="()=>ApproveRow(row)">Approve</button></td>
                 </tr>
             }
     </tbody>
@@ -61,12 +58,20 @@ else{
 
 @code {
     [Parameter] public string[] Headers{get; set;} = [];
-    [Parameter] public List<Applicant> Rows{get; set;} = new();
-    [Parameter] public EventCallback<Applicant> OnApprove { get; set; }
-    string pressed ="Not pressed";
-     @* private Task ApproveRow(Applicant row)=> OnApprove.InvokeAsync(row); *@
+    [Parameter] public List<object> Rows{get; set;} = new();
+    [Parameter] public string[] PropertyNames { get; set; } = [];
 
-     private void ButtonPressed(){
-        pressed="Pressed";
-     }
+    private object GetPropertyValue(object item, string propertyName)
+    {
+        var property = item.GetType().GetProperty(propertyName);
+        return property?.GetValue(item) ?? "-";
+    }
+
+    private void ApproveRow(Object row){
+         if (row is Applicant applicant)
+        {
+            applicant.Approve();
+        }
+    }
+
 }

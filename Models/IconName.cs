@@ -6,4 +6,8 @@
         GraphUpArrow,
         CashCoin,
         ExclamationOctagon,
+        Clock,
+        ShieldCheck,
+        HouseDoor,
+        CarFront,
     }

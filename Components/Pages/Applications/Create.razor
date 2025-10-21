@@ -1,0 +1,38 @@
+@page "/applications/create"
+@using BlazorApp.Models
+
+<h1>Application</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Applicant" OnValidSubmit="CreateApplicant" FormName="create" Enhance>
+            <DataAnnotationsValidator/>
+            <ValidationSummary class="text-danger"/>
+            <div class="mb-3">
+                <label for="name" class="form-label">Username:</label>
+                <InputText id="name" @bind-Value="Applicant.Username" class="form-control input-class"/>
+                <ValidationMessage For="()=> Applicant.Username" class="text-danger"/>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <InputText id="email" @bind-Value="Applicant.Email" class="form-control"/>
+                <ValidationMessage For="()=> Applicant.Email" class="text-danger"/>
+            </div>
+            <div class="mb-3">
+                <label for="loanAmount" class="form-label formControlRange">Loan Amount:</label>
+                @* <input type="range" class="form-control-range" id="formControlRange"> *@
+                <InputNumber id="loanAmount" @bind-Value="Applicant.RequestedAmount" class="form-control"/>
+                <ValidationMessage For="()=> Applicant.RequestedAmount" class="text-danger"/>
+            </div>
+
+        </EditForm>
+    </div>
+</div>
+
+@code{
+    [SupplyParameterFromForm]
+    public Applicant Applicant {get; set;} = new();
+    private void CreateApplicant(){
+
+    }
+}
