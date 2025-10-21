@@ -1,38 +1,108 @@
 @page "/applications/create"
+@rendermode InteractiveServer
 @using BlazorApp.Models
 
 <h1>Application</h1>
 
-<div class="row">
+<div class="row bg-white border rounded shadow p-2">
     <div class="col-md-4">
         <EditForm method="post" Model="Applicant" OnValidSubmit="CreateApplicant" FormName="create" Enhance>
             <DataAnnotationsValidator/>
             <ValidationSummary class="text-danger"/>
-            <div class="mb-3">
-                <label for="name" class="form-label">Username:</label>
-                <InputText id="name" @bind-Value="Applicant.Username" class="form-control input-class"/>
+            <div class="mb-3 floating-input">
+                <InputText readonly id="username" @bind-Value="Applicant.Username" class="@GetInputClass(Applicant.Username)"/>
+                <label for="username" class="form-label">Username:</label>
                 <ValidationMessage For="()=> Applicant.Username" class="text-danger"/>
             </div>
-            <div class="mb-3">
+            <div class="mb-3 floating-input">
+                <InputText readonly id="email" @bind-Value="Applicant.Email" class="@GetInputClass(Applicant.Email)"/>
                 <label for="email" class="form-label">Email:</label>
-                <InputText id="email" @bind-Value="Applicant.Email" class="form-control"/>
                 <ValidationMessage For="()=> Applicant.Email" class="text-danger"/>
             </div>
-            <div class="mb-3">
-                <label for="loanAmount" class="form-label formControlRange">Loan Amount:</label>
-                @* <input type="range" class="form-control-range" id="formControlRange"> *@
-                <InputNumber id="loanAmount" @bind-Value="Applicant.RequestedAmount" class="form-control"/>
-                <ValidationMessage For="()=> Applicant.RequestedAmount" class="text-danger"/>
+            <div class="mb-3 floating-input">
+                <InputSelect id="paymentTerms"
+                            class="@GetInputClass(Applicant.PaymentTerms)"
+                            @bind-Value="Applicant.PaymentTerms"
+                            @bind-Value:after="CalculateMonthlyAmount">
+                    <option value=""></option>
+                    <option value="6">6 Months</option>
+                    <option value="12">12 Months</option>
+                    <option value="18">18 Months</option>
+                    <option value="24">24 Months</option>
+                </InputSelect>
+                <label for="paymentTerms" class="form-label">Payment Terms:</label>
             </div>
+            @* <input type="invisible" invisible value="@Applicant.PaymentTerms" @onchange="CalculateMonthlyAmount"/> *@
+            <div class="mb-3">
+                @* <InputNumber id="loanAmount" @bind-Value="Applicant.RequestedAmount" class="input-field has-value"/>
+                <label for="loanAmount" class="form-label">Loan Amount:</label>
+                <ValidationMessage For="()=> Applicant.RequestedAmount" class="text-danger"/> *@
+                <input type="range"
+                    id="loanAmount"
+                    min="1000"
+                    max="25000"
+                    step="50"
+                    @bind="Applicant.RequestedAmount"
+                    @bind:after="CalculateMonthlyAmount"
+                    class="range-input" />
 
+                <label for="loanAmount" class="form-label">Loan Amount: <strong>R @Applicant.RequestedAmount.ToString("N2")</strong></label>
+                <ValidationMessage For="()=> Applicant.RequestedAmount" class="text-danger" />
+            </div>
+            <div class="w-100 d-flex justify-content-center align-items-center">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+            
         </EditForm>
+    </div>
+    <div class="col-md-4">
+        <div>
+            <h5 class="text-center fs-2 fw-bold">Offers</h5>
+            <p class="text-center">Estimated monthly repayment for your configuration</p>
+        </div>
+        <div class="mx-5">
+            <ul class="loan-summary list-unstyled m-0">
+                <li><h5>Terms</h5><p>@Applicant.PaymentTerms Months</p></li>
+                <li><h5>Monthly Repayment</h5><p>R @Applicant.MonthlyRepayment.ToString("N2")</p></li>
+                <li><h5>Interest Rate</h5><p>19.6%</p></li>
+            </ul>
+        </div>
     </div>
 </div>
 
 @code{
     [SupplyParameterFromForm]
-    public Applicant Applicant {get; set;} = new();
+    public Applicant Applicant {get; set;} = new Applicant{
+        Username="Nkosana Mabuza", Email="nkosana.mabuza2@gmail.com"
+    };
+
     private void CreateApplicant(){
 
     }
+
+    private string GetInputClass(string passedText)
+    {
+        return $"input-field{(string.IsNullOrWhiteSpace(passedText) ? "" : " has-value")}";
+    }
+
+    private void CalculateMonthlyAmount(){
+        Console.WriteLine("Does this method get called");
+        if(Applicant.PaymentTerms.Length >= 0){
+            @* Calculate the interest based on how much you want *@
+            const float min_interest = 19;
+            const float max_interest = 29;
+            
+            @* Calculate the monthly repayment using compound interest + 75 service fee *@
+            Applicant.NumberOfPayments = int.Parse(Applicant.PaymentTerms);
+            Applicant.MonthlyRepayment = Applicant.RequestedAmount / Applicant.NumberOfPayments;
+            Console.WriteLine("Do we get here");
+            Console.WriteLine(Applicant.NumberOfPayments );
+            Console.WriteLine(Applicant.MonthlyRepayment);
+        }else{
+            Console.WriteLine("Do we update");
+            Applicant.NumberOfPayments = 0;
+            Applicant.MonthlyRepayment = 0;
+        }
+    }
+    
 }
