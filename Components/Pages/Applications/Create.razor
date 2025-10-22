@@ -64,7 +64,7 @@
             <ul class="loan-summary list-unstyled m-0">
                 <li><h5>Terms</h5><p>@Applicant.PaymentTerms Months</p></li>
                 <li><h5>Monthly Repayment</h5><p>R @Applicant.MonthlyRepayment.ToString("N2")</p></li>
-                <li><h5>Interest Rate</h5><p>19.6%</p></li>
+                <li><h5>Interest Rate</h5><p>@Applicant.LinkedInterest%</p></li>
             </ul>
         </div>
     </div>
@@ -80,7 +80,7 @@
 
     }
 
-    private string GetInputClass(string passedText)
+    private string GetInputClass(string? passedText)
     {
         return $"input-field{(string.IsNullOrWhiteSpace(passedText) ? "" : " has-value")}";
     }
@@ -88,13 +88,24 @@
     private void CalculateMonthlyAmount(){
         Console.WriteLine("Does this method get called");
         if(Applicant.PaymentTerms.Length >= 0){
-            @* Calculate the interest based on how much you want *@
-            const float min_interest = 19;
-            const float max_interest = 29;
-            
-            @* Calculate the monthly repayment using compound interest + 75 service fee *@
+            @* Number of repayments *@
             Applicant.NumberOfPayments = int.Parse(Applicant.PaymentTerms);
-            Applicant.MonthlyRepayment = Applicant.RequestedAmount / Applicant.NumberOfPayments;
+            @* Calculate the interest based on how much you want *@
+            const float min_interest = 20;
+            const float max_interest = 29;
+            @* R1000 interest is 29 and R25000 interest is 20 *@
+            Applicant.LinkedInterest = -(Applicant.RequestedAmount)*((max_interest - min_interest) / (24000)) + max_interest;
+            @* Cralculate the interest based on period *@
+            const float min_frequency_interest = 0;
+            const float max_frequency_interest = 3;
+            const float gradient = (min_frequency_interest - max_frequency_interest) / 18;
+            const float c = - gradient * 24 + min_frequency_interest;
+            Applicant.LinkedInterest += gradient * Applicant.NumberOfPayments + c;
+            @* Calculate the monthly repayment using compound interest + 75 service fee \(A=P[r(1+r)^{n}]/[(1+r)^{n}1]\) *@
+            var P = Applicant.RequestedAmount;
+            var r = (Applicant.LinkedInterest /100) / 12;
+            var n = Applicant.NumberOfPayments;
+            Applicant.MonthlyRepayment = P*(r * MathF.Pow((1 + r), n))/(MathF.Pow((1 + r), n)-1);
             Console.WriteLine("Do we get here");
             Console.WriteLine(Applicant.NumberOfPayments );
             Console.WriteLine(Applicant.MonthlyRepayment);
