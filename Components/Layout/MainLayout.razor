@@ -7,6 +7,16 @@
 
     <main>
         <div class="top-row px-4">
+            <Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+                <NotAuthorized>
+                    <a href="/login" target="_blank">Login</a>
+                    <a href="/register" target="_blank">Register</a>
+                </NotAuthorized>
+                <Authorized>
+                    <a href="/logout" class="nav-link text-danger">Logout</a>
+                </Authorized>
+            </Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+
             <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
         </div>
 

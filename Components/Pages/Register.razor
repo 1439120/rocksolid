@@ -1,0 +1,78 @@
+@page "/register"
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+@using BlazorApp.Models
+
+<div>
+    @* <div>Register</div> *@
+
+    <div class="p-2">
+        <div class="d-flex justify-content-center align-items-center m-4 p-4">
+            <EditForm method="post" Model="User" OnValidSubmit="CreateUser" FormName="create" Enhance>
+                <DataAnnotationsValidator/>
+                <ValidationSummary class="text-danger"/>
+                <div class="bg-white border rounded shadow p-4 m-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3 floating-input">
+                                <InputText id="name" @bind-Value="User.Name" class="input-field has-value"/>
+                                <label for="name" class="form-label">Name:</label>
+                                <ValidationMessage For="() => User.Name" class="text-danger"/>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3 floating-input">
+                                <InputText id="surname" @bind-Value="User.Surname"  class="input-field has-value"/>
+                                <label for="surname" class="form-label">Surname:</label>
+                                <ValidationMessage For="() => User.Surname" class="text-danger"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3 floating-input">
+                                <InputText id="email" @bind-Value="User.Email"  class="input-field has-value"/>
+                                <label for="email" class="form-label">Email:</label>
+                                <ValidationMessage For="() => User.Email" class="text-danger"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3 floating-input">
+                                <input id="password2" @bind="User.Password" type="password" class="input-field has-value"/>
+                                <label for="password2" class="form-label">Password:</label>
+                                <ValidationMessage For="() => User.Password" class="text-danger"/>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-danger">@message</p>
+                    <div class="d-flex justify-content-center">
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </div>
+                    
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code{
+    public ClientDatabase User = new ClientDatabase();
+    public string message = "";
+
+    private async Task CreateUser()
+    {
+        try
+        {
+            var module = await JS.InvokeAsync<IJSObjectReference>("import", "./firebaseAuth.js");
+            await module.InvokeVoidAsync("register", User.Email, User.Password);
+            Console.WriteLine("Registered successfully!");
+        }
+        catch (Exception ex)
+        {
+            @* message = $"Error: {ex.Message}"; *@
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+}

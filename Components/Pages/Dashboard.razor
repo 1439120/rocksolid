@@ -1,8 +1,14 @@
 @page "/dashboard"
 @using BlazorApp.Components.Reusbale
+@using Microsoft.AspNetCore.Components.Authorization
 
 <div class="dashboard-header">
     <h1>Dashboard</h1>
+    <AuthorizeView>
+        <Authorized>
+            <p>Hello @context.User.Identity.Name!</p>
+        </Authorized>
+    </AuthorizeView>
 </div>
 
 <div class="d-flex flex-row gap-2 justify-content-between mt-10">
@@ -18,11 +24,22 @@
     </div>
 </div>
 
-<div class="my-4 d-flex gap-5 m-5">
-    <LoanCard Title="Personal Loan" LoanItems="@PersonalLoanItems" TitleColor="blue"/>
-    <LoanCard Title="House Loan" LoanItems="@HouseLoanItems" TitleColor="grey"/>
-    <LoanCard Title="Car Loan" LoanItems="@CarLoanItems" TitleColor="orange"/>
-</div>
+<AuthorizeView>
+    <Authorized>
+        <div class="my-4 d-flex gap-5 m-5">
+            <LoanCard Title="Personal Loan" LoanItems="@PersonalLoanItems" TitleColor="blue"/>
+            <LoanCard Title="House Loan" LoanItems="@HouseLoanItems" TitleColor="grey"/>
+            <LoanCard Title="Car Loan" LoanItems="@CarLoanItems" TitleColor="orange"/>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        Log In Please
+        <NavLink class="btn btn-primary" href="/login">
+            <span class="bi bi-bank-nav-menu" aria-hidden="true"></span> login
+        </NavLink>
+    </NotAuthorized>
+</AuthorizeView>
+
 
 
 <div class="d-flex flex-wrap gap-4 align-items-start">
@@ -85,4 +102,8 @@
     new LoanFeature{IconName=IconName.CarFront, Text="Borrow up to <strong>R500,000</strong>", IconColor="green"},
     new LoanFeature{IconName=IconName.Clock, Text="Get approved within <strong>24 hours</strong>", IconColor="blue"},
     new LoanFeature{IconName=IconName.ShieldCheck, Text="Flexible repayment terms", IconColor="orange"}];
+
+    @* private string name => await authenticationState; *@
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationState{get; set;}
 }

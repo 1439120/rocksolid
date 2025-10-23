@@ -1,23 +1,31 @@
+using BlazorApp.Authentication;
 using BlazorApp.Components;
 using BlazorApp.Services;
 using Google.Cloud.Firestore;
-
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+// Blazor authentication
+builder.Services.AddAuthenticationCore();
+builder.Services.AddAuthorizationCore();
 
-// // Configure Firebase
-// var firebaseConfig = new FirebaseConfig();
-// builder.Configuration.GetSection("Firebase").Bind(firebaseConfig);
 
 // Register FirestoreService
 builder.Services.AddSingleton<FirestoreService>();
+builder.Services.AddScoped<FirebaseAuthentication>(); // Firebase authentication injection
+// storage and auth rpovider
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationProvider>();
+// builder.Services.AddScoped<ProtectedSessionStorage>();
+builder.Services.AddMemoryCache();
+
+// other services
 builder.Services.AddScoped<StudentService>(); // Your other services
-
-
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -44,7 +52,6 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();
-
 
 // Configuration class
 public class FirebaseConfig

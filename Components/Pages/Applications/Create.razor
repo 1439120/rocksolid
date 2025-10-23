@@ -10,7 +10,8 @@
             <DataAnnotationsValidator/>
             <ValidationSummary class="text-danger"/>
             <div class="mb-3 floating-input">
-                <InputText readonly id="username" @bind-Value="Applicant.Username" class="@GetInputClass(Applicant.Username)"/>
+                @* <InputText readonly id="username" class="@GetInputClass(Applicant.Username)"/> *@
+                <input readonly id="username" value="@Applicant.Username" class="@GetInputClass(Applicant.Username)"/>
                 <label for="username" class="form-label">Username:</label>
                 <ValidationMessage For="()=> Applicant.Username" class="text-danger"/>
             </div>
@@ -32,7 +33,6 @@
                 </InputSelect>
                 <label for="paymentTerms" class="form-label">Payment Terms:</label>
             </div>
-            @* <input type="invisible" invisible value="@Applicant.PaymentTerms" @onchange="CalculateMonthlyAmount"/> *@
             <div class="mb-3">
                 @* <InputNumber id="loanAmount" @bind-Value="Applicant.RequestedAmount" class="input-field has-value"/>
                 <label for="loanAmount" class="form-label">Loan Amount:</label>
@@ -73,7 +73,7 @@
 @code{
     [SupplyParameterFromForm]
     public Applicant Applicant {get; set;} = new Applicant{
-        Username="Nkosana Mabuza", Email="nkosana.mabuza2@gmail.com"
+        Name="Nkosana",Surname="Mabuza", Email="nkosana.mabuza2@gmail.com"
     };
 
     private void CreateApplicant(){
