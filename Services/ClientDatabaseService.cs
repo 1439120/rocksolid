@@ -28,9 +28,20 @@ namespace BlazorApp.Services
             {
                 user.Id = Guid.NewGuid().ToString();
             }
-
+            Console.WriteLine($"Saving user: {System.Text.Json.JsonSerializer.Serialize(user)}");
             DocumentReference docRef = _firestoreDb.Collection(CollectionName).Document(user.Id);
-            await docRef.SetAsync(user);
+            var userData = new
+            {
+                user.Id,
+                user.Name,
+                user.Surname,
+                user.Email,
+                user.UserId,
+                user.NumberOfApplications,
+                user.CreatedAt,
+                user.UpdatedAt
+            };
+            await docRef.SetAsync(userData);
             return docRef.Id;
         }
 

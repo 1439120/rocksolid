@@ -1,9 +1,10 @@
 @page "/register"
-@using BlazorApp.Models
 @rendermode InteractiveServer
+@using BlazorApp.Models
 @inject IJSRuntime JS
 @inject ClientDatabaseService ClientDbService
-
+@inject AuthenticationStateProvider authStateProvider
+@inject NavigationManager nvManager
 
 <div class="register-wrapper d-flex justify-content-center align-items-center">
     <div class="register-card bg-white shadow-lg rounded-4 p-4">
@@ -72,16 +73,28 @@
 
     private async Task CreateUser()
     {
+        
         try
         {
             var module = await JS.InvokeAsync<IJSObjectReference>("import", "./firebaseAuth.js");
-            await module.InvokeVoidAsync("register", User.Email, User.Password);
-            Console.WriteLine("Registered successfully!");
+            var userId =  await module.InvokeAsync<string>("register", User.Email, User.Password);
+            Console.WriteLine("Registered to firebase successfully!: ", userId);
+            User.UserId = userId;
+            Console.WriteLine("User: {0}", System.Text.Json.JsonSerializer.Serialize(User));
+            await ClientDbService.AddUserAsync(User);
+            Console.WriteLine("User created successfully");
+
+            var customAuthStateProvider = (CustomAuthenticationProvider)authStateProvider;
+            await customAuthStateProvider.UpdateAuthenticationState(new UserSession{
+                UserName=User.Email,
+                @* UserID=User.Id, *@
+                Role="Admin"
+            });
+            nvManager.NavigateTo("/dashboard", true);
         }
         catch (Exception ex)
         {
-            @* message = $"Error: {ex.Message}"; *@
-            Console.WriteLine($"Error: {ex.Message}");
-        }
+            Message = ex.Message;
+            Console.WriteLine($"Error: {ex.Message}");        }
     }
 }
