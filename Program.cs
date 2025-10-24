@@ -26,6 +26,7 @@ builder.Services.AddMemoryCache();
 
 // other services
 builder.Services.AddScoped<StudentService>(); // Your other services
+builder.Services.AddScoped<ClientDatabaseService>(); // Your other services
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

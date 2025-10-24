@@ -5,7 +5,7 @@ using System.Security.Claims;
 
 namespace BlazorApp.Authentication{
     public class CustomAuthenticationProvider: AuthenticationStateProvider{
-        private readonly ProtectedSessionStorage _sessionStorage;
+        // private readonly ProtectedSessionStorage _sessionStorage;
         private readonly IMemoryCache _cache;
         private ClaimsPrincipal _anonymous = new ClaimsPrincipal(new ClaimsIdentity());
 
@@ -30,7 +30,7 @@ namespace BlazorApp.Authentication{
             return Task.FromResult(new AuthenticationState(claimsPrincipal));
         }
 
-        public Task UpdateAuthenticationState(UserSession userSession)
+        public Task UpdateAuthenticationState(UserSession? userSession)
         {
             if (userSession != null)
                 _cache.Set("UserSession", userSession, TimeSpan.FromHours(8));

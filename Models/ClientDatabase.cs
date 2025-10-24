@@ -1,3 +1,4 @@
+
 using System.ComponentModel.DataAnnotations;
 namespace BlazorApp.Models
 {
@@ -8,6 +9,7 @@ namespace BlazorApp.Models
         public string Surname {get;set;} = string.Empty;
         public string Email {get; set;}= string.Empty;
         public string Password {get; set;}= string.Empty;
+        public string UserId {get; set;}= string.Empty;
         public int NumberOfApplications { get; set; } = 1;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

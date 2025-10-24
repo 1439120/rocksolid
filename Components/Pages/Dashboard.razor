@@ -6,7 +6,7 @@
     <h1>Dashboard</h1>
     <AuthorizeView>
         <Authorized>
-            <p>Hello @context.User.Identity.Name!</p>
+            <p>Hello @context?.User?.Identity?.Name!</p>
         </Authorized>
     </AuthorizeView>
 </div>
@@ -103,7 +103,7 @@
     new LoanFeature{IconName=IconName.Clock, Text="Get approved within <strong>24 hours</strong>", IconColor="blue"},
     new LoanFeature{IconName=IconName.ShieldCheck, Text="Flexible repayment terms", IconColor="orange"}];
 
-    @* private string name => await authenticationState; *@
-    [CascadingParameter]
-    private Task<AuthenticationState> authenticationState{get; set;}
+
+    @* [CascadingParameter]
+    private Task<AuthenticationState> authenticationState{get; set;} *@
 }
