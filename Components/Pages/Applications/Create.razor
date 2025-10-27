@@ -1,6 +1,9 @@
 @page "/applications/create"
 @rendermode InteractiveServer
 @using BlazorApp.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider authStateProvider
+@inject ClientDatabaseService ClientDbService
 
 <h1>Application</h1>
 
@@ -69,12 +72,13 @@
         </div>
     </div>
 </div>
-
+<p>@(authenticationState == null ? "No auth state" : "Auth state available")</p>
 @code{
     [SupplyParameterFromForm]
-    public Applicant Applicant {get; set;} = new Applicant{
-        Name="Nkosana",Surname="Mabuza", Email="nkosana.mabuza2@gmail.com"
-    };
+    public Applicant Applicant {get; set;} = new ();
+    [CascadingParameter]
+    private AuthenticationState? authenticationState{get; set;}
+    @* private Task<AuthenticationState>? authenticationState{get; set;} *@
 
     private void CreateApplicant(){
 
@@ -106,14 +110,46 @@
             var r = (Applicant.LinkedInterest /100) / 12;
             var n = Applicant.NumberOfPayments;
             Applicant.MonthlyRepayment = P*(r * MathF.Pow((1 + r), n))/(MathF.Pow((1 + r), n)-1);
-            Console.WriteLine("Do we get here");
+            @* Console.WriteLine("Do we get here");
             Console.WriteLine(Applicant.NumberOfPayments );
-            Console.WriteLine(Applicant.MonthlyRepayment);
+            Console.WriteLine(Applicant.MonthlyRepayment); *@
         }else{
-            Console.WriteLine("Do we update");
+            @* Console.WriteLine("Do we update"); *@
             Applicant.NumberOfPayments = 0;
             Applicant.MonthlyRepayment = 0;
         }
     }
+
+    protected override async Task OnInitializedAsync()
+    {
+        authenticationState = await authStateProvider.GetAuthenticationStateAsync();
+        if (authenticationState == null)
+        {
+            Console.WriteLine("⚠️ authenticationState is null");
+            return;
+        }
+
+        var userClaims = authenticationState.User;
+        var userId = userClaims.FindFirst("UserId")?.Value;
+
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var users = await ClientDbService.GetClientByUserId(userId);
+            var User = users.FirstOrDefault();
+            if(User != null){
+                PrepareApplication(User);
+                StateHasChanged(); //
+            }
+        }
     
+    }
+
+    private void PrepareApplication(ClientDatabase client){
+        Applicant.Name = client.Name;
+        Applicant.Surname = client.Surname;
+        Applicant.Email = client.Email;
+        Applicant.ClientId = client.Id;
+        Applicant.UserId = client.UserId;
+    }
+
 }

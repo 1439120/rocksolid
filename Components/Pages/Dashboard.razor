@@ -1,12 +1,14 @@
 @page "/dashboard"
 @using BlazorApp.Components.Reusbale
 @using Microsoft.AspNetCore.Components.Authorization
+@using BlazorApp.Models;
+@inject ClientDatabaseService ClientDbService
 
 <div class="dashboard-header">
     <h1>Dashboard</h1>
     <AuthorizeView>
         <Authorized>
-            <p>Hello @context?.User?.Identity?.Name!</p>
+            <p>Hello <strong>@User?.Name @User?.Surname</strong></p>
         </Authorized>
     </AuthorizeView>
 </div>
@@ -18,14 +20,14 @@
     <Card Title="Total Loans" IconColor="red" BiIcon=IconName.ExclamationOctagon Comment="Total loan offered" Value="1"/>
 </div>
 
-<div>
-    <div class="mt-3">
-        <p class="fs-3 fw-bold">All Loans</p>
-    </div>
-</div>
 
 <AuthorizeView>
     <Authorized>
+        <div>
+            <div class="mt-3">
+                <p class="fs-3 fw-bold">All Loans</p>
+            </div>
+        </div>
         <div class="my-4 d-flex gap-5 m-5">
             <LoanCard Title="Personal Loan" LoanItems="@PersonalLoanItems" TitleColor="blue"/>
             <LoanCard Title="House Loan" LoanItems="@HouseLoanItems" TitleColor="grey"/>
@@ -33,10 +35,12 @@
         </div>
     </Authorized>
     <NotAuthorized>
-        Log In Please
-        <NavLink class="btn btn-primary" href="/login">
-            <span class="bi bi-bank-nav-menu" aria-hidden="true"></span> login
-        </NavLink>
+        <span class="m-3">
+            To manage and access your funds click the login link
+            <NavLink href="/login">
+                <span class="bi bi-bank-nav-menu" aria-hidden="true"></span> login
+            </NavLink>
+        </span>
     </NotAuthorized>
 </AuthorizeView>
 
@@ -74,9 +78,10 @@
     </div>
     
 </div>
-
+    
 @* <div>
     <h2>Current Application</h2>
+    using System.ComponentModel.DataAnnotations;
 </div> *@
 
 @* <div>
@@ -88,6 +93,8 @@
 </div> *@
 
 @code{
+    @* private ClientDatabase User => ClientDbService.GetClientByUserId(context?.User?.Identity?.UserId)[0]; *@
+    private ClientDatabase? User;
     private LoanFeature[] PersonalLoanItems = [
     new LoanFeature{IconName=IconName.CashCoin, Text="Borrow up to <strong>R25,000</strong>", IconColor="green"},
     new LoanFeature{IconName=IconName.Clock, Text="Get approved within <strong>24 hours</strong>", IconColor="blue"},
@@ -103,7 +110,24 @@
     new LoanFeature{IconName=IconName.Clock, Text="Get approved within <strong>24 hours</strong>", IconColor="blue"},
     new LoanFeature{IconName=IconName.ShieldCheck, Text="Flexible repayment terms", IconColor="orange"}];
 
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationState;
+        if(authState != null){
+            var userClaims = authState.User;
 
-    @* [CascadingParameter]
-    private Task<AuthenticationState> authenticationState{get; set;} *@
+            var userId = userClaims.FindFirst("UserId")?.Value;
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var users = await ClientDbService.GetClientByUserId(userId);
+                User = users.FirstOrDefault();
+            }
+        }
+        
+    }
+
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState{get; set;}
 }

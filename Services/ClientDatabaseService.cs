@@ -57,6 +57,19 @@ namespace BlazorApp.Services
             }
             return null;
         }
+        public async Task<List<ClientDatabase>> GetClientByUserId(string UserId)
+        {
+            Query query = _firestoreDb.Collection(CollectionName)
+                .WhereEqualTo("UserId", UserId);
+                // .OrderBy("Surname");
+                
+            QuerySnapshot querySnapshot = await query.GetSnapshotAsync();
+            
+            return querySnapshot.Documents
+                .Select(document => document.ConvertTo<ClientDatabase>())
+                .Where(user => user != null)
+                .ToList()!;
+        }
 
         // Read - Get all students
         public async Task<List<ClientDatabase>> GetAllUsersAsync()

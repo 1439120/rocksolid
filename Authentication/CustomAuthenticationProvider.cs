@@ -24,7 +24,8 @@ namespace BlazorApp.Authentication{
             var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
             {
                 new Claim(ClaimTypes.Name, userSession.UserName),
-                new Claim(ClaimTypes.Role, userSession.Role)
+                new Claim(ClaimTypes.Role, userSession.Role),
+                new Claim("UserId", userSession.UserID),
             }, "CustomAuth"));
 
             return Task.FromResult(new AuthenticationState(claimsPrincipal));
@@ -41,7 +42,8 @@ namespace BlazorApp.Authentication{
                 ? new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, userSession.UserName),
-                    new Claim(ClaimTypes.Role, userSession.Role)
+                    new Claim(ClaimTypes.Role, userSession.Role),
+                    new Claim("UserId", userSession.UserID),
                 }, "CustomAuth"))
                 : _anonymous;
 

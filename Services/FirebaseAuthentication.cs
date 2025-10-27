@@ -18,45 +18,50 @@ namespace BlazorApp.Services
             _js = js;
         }
 
-        public async Task Login(string email, string password)
+        public async Task<string> Login(string email, string password)
         {
             try
             {
                 var module = await _js.InvokeAsync<IJSObjectReference>("import", "./firebaseAuth.js");
-                await module.InvokeVoidAsync("login", email, password);
+                var UserId = await module.InvokeAsync<string>("login", email, password);
                 Message = "Logged in successfully!";
                 IsLoggedIn=true;
                 CurrentUserEmail=email;
                 NotifyStateChanged();
+                return UserId;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("There is an error: " + ex.Message);
                 Message = $"Error: {ex.Message}";
                 IsLoggedIn=false;
+                return "";
             }
         }
 
-        public async Task Register(string email, string password)
+        public async Task<string> Register(string email, string password)
         {
             try
             {
                 var module = await _js.InvokeAsync<IJSObjectReference>("import", "./firebaseAuth.js");
-                await module.InvokeVoidAsync("register", email, password);
+                var UserId = await module.InvokeAsync<string>("register", email, password);
                 Message = "Registered successfully!";
+                return UserId;
             }
             catch (Exception ex)
             {
                 Console.WriteLine("There is an error: " + ex.Message);
                 Message = $"Error: {ex.Message}";
+                return "";
             }
         }
 
-        public void Logout()
+        public async void Logout()
         {
             IsLoggedIn = false;
             CurrentUserEmail = "";
             NotifyStateChanged();
+            await _js.InvokeVoidAsync("logout", "./firebaseAuth.js");
         }
     }
 }

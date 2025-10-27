@@ -22,7 +22,7 @@ const firebaseConfig = {
   
   export async function login(email, password) {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      return userCredential.user;
+      return userCredential.user.uid;
   }
   
   export async function logout() {

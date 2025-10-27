@@ -65,19 +65,18 @@
 
     private async Task HandleLogin()
     {
-        await FirebaseAuth.Login(User.Email, User.Password);
+        var UserId = await FirebaseAuth.Login(User.Email, User.Password);
         message = FirebaseAuth.Message;
         if(!FirebaseAuth.IsLoggedIn){
             await js.InvokeVoidAsync("alert", "Invalid user name or password");
             return;
         }
-
         @* Find the user that is logged in *@
 
         var customAuthStateProvider = (CustomAuthenticationProvider)authStateProvider;
         await customAuthStateProvider.UpdateAuthenticationState(new UserSession{
             UserName=User.Email,
-            @* UserID=User.Id, *@
+            UserID=UserId,
             Role="Admin"
         });
         nvManager.NavigateTo("/dashboard", true);
