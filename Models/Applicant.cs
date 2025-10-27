@@ -42,9 +42,9 @@ namespace BlazorApp.Models
         [Required(ErrorMessage = "Select payment terms.")]
         public string PaymentTerms{get;set;} = "";
         [FirestoreProperty]
-        public DateTime StartDate{get;set;}
+        public DateTime StartDate{get;set;} = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
         [FirestoreProperty]
-        public DateTime EndDate{get;set;}
+        public DateTime EndDate{get;set;} = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
         [FirestoreProperty]
         public float RemainingAmount{get;set;}
         [FirestoreProperty]

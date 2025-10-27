@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations;
 using Google.Cloud.Firestore;
 namespace BlazorApp.Models
 {
-        [FirestoreData]
-        public class ClientDatabase{
+    [FirestoreData]
+    public class ClientDatabase{
         [FirestoreProperty]
         public string Id { get; set; } = Guid.NewGuid().ToString();
         [FirestoreProperty, Required(ErrorMessage = "User Name is required.")]

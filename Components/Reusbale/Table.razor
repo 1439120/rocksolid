@@ -1,37 +1,11 @@
 @using BlazorApp.Models
 @* @rendermode InteractiveServer *@
-
+@inject ApplicationService ApplicationDbService
 
 @if(Headers.Length == 0 || Rows.Count == 0){
-<table class="t-class table">
-    <thead class="t-head">
-        <tr>
-            <th>Borrower</th>
-            <th>Loan Amount</th>
-            <th>Outstanding Amount</th>
-            <th>Interest Rate</th>
-            <th>Monthly Payment</th>
-            <th>Status</th>
-            <th>Disbursement</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-                <div>Sara Johns</div>
-                <p>sarah.j@email.com</p>
-            </td>
-            <td>R50000</td>
-            <td>R42000</td>
-            <td>5.5%</td>
-            <td>R952</td>
-            <td>Active</td>
-            <td>July 14, 2024</td>
-            <td>View</td>
-        </tr>
-    </tbody>
-</table>
+    <div>
+        Loading...
+    </div>
 }
 else{
 <table class="t-class table">
@@ -49,17 +23,21 @@ else{
                         {
                             <td>@GetPropertyValue(row, propName)</td>
                         }
+                    @if(Headers.Contains("Action")){
                         <td><button class="btn btn-primary" @onclick="()=>ApproveRow(row)">Approve</button></td>
+                    }
+                        
                 </tr>
             }
     </tbody>
 </table>
 }
-
+<p>@message</p>
 @code {
     [Parameter] public string[] Headers{get; set;} = [];
     [Parameter] public List<object> Rows{get; set;} = new();
     [Parameter] public string[] PropertyNames { get; set; } = [];
+    string message;
 
     private object GetPropertyValue(object item, string propertyName)
     {
@@ -67,11 +45,39 @@ else{
         return property?.GetValue(item) ?? "-";
     }
 
-    private void ApproveRow(Object row){
+    private async Task ApproveRow(Object row){
          if (row is Applicant applicant)
         {
+            await ApplicationDbService.UpdateApplicantFieldsAsync(applicant.Id, new Dictionary<string, object>{
+              {"RemainingAmount", applicant.RequestedAmount},
+              {"Status", "Approved"},
+              {"StartDate", GetNextMonthStart()},
+              {"EndDate", GetEndOfPeriod(applicant.NumberOfPayments)}
+            });
             applicant.Approve();
+            message = "Application Approved Successfully";
         }
+    }
+
+    private DateTime GetNextMonthStart()
+    {
+        // Get the first day of next month at 00:00:00
+        var today = DateTime.Today;
+        var nextMonth = today.Month == 12 
+            ? new DateTime(today.Year + 1, 1, 1)  // January next year
+            : new DateTime(today.Year, today.Month + 1, 1);  // First day of next month
+        
+        return DateTime.SpecifyKind(nextMonth, DateTimeKind.Utc);
+    }
+    private DateTime GetEndOfPeriod(int noInstall)
+    {
+        // Calculate end date based on number of installments from next month start
+        var startDate = GetNextMonthStart();
+        
+        // Add the number of installments as months, then subtract 1 day to get the end of the period
+        var endDate = startDate.AddMonths(noInstall).AddDays(-1);
+        
+        return DateTime.SpecifyKind(endDate, DateTimeKind.Utc);
     }
 
 }

@@ -1,8 +1,30 @@
 @page "/database"
-@* @using BlazorApp.Components.Reusbale *@
+@using BlazorApp.Components.Reusbale
+@using BlazorApp.Models;
+@inject ClientDatabaseService ClientDbService
 
 <h1>Client Database</h1>
 
 <div>
-    @* <Table/> *@
+    @if(clients is null){
+        <p>No clients.</p>
+    }else{
+        <Table Headers="@Headers" Rows="@clientsAsObjects" PropertyNames="@PropertyNames"/>
+    }
 </div>
+
+
+@code{
+    static string[] Headers=["Name","Surname","Email","Number Of Applications","Created At"];
+    private string[] PropertyNames = new[] { "Name", "Surname", "Email", "NumberOfApplications","CreatedAt"};
+
+    private List<ClientDatabase> clients = new();
+    private List<object> clientsAsObjects => clients.Cast<object>().ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        clients = await ClientDbService.GetAllUsersAsync();
+    }
+
+}    
+    

@@ -2,6 +2,7 @@
 @using BlazorApp.Components.Reusbale
 @using BlazorApp.Models
 @rendermode InteractiveServer
+@inject ApplicationService ApplicantDBService
 
 <h1>Applications</h1>
 
@@ -22,29 +23,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Simulate asynchronous loading to demonstrate streaming rendering
-        await Task.Delay(50);
-
-        applicants.Add(new Applicant
-        {
-            Name="Nkosana",
-            RequestedAmount=600
-        });
-         applicants.Add(new Applicant
-        {
-            Name="Timothy",
-            RequestedAmount=900
-        });
-         applicants.Add(new Applicant
-        {
-            Name="Benin",
-            RequestedAmount=1200
-        });
-         applicants.Add(new Applicant
-        {
-            Name="Kwesta",
-            RequestedAmount=1100
-        });
+        applicants = await ApplicantDBService.GetAllApplicationsAsync();
     }
 
 }

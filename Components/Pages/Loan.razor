@@ -1,3 +1,31 @@
 @page "/loans"
+@using BlazorApp.Models;
+@using BlazorApp.Components.Reusbale
+@inject ApplicationService ApplicantDBService
 
 <h1>Loans</h1>
+
+<div>
+    @if(OnGoingLoans is null){
+        <p>No On Going Loans.............</p>
+    }else{
+        <Table Headers="@Headers" Rows="@loansAsObjects" PropertyNames="@PropertyNames"/>
+    }
+</div>
+
+@code{
+    static string[] Headers=["Client","Email","Application Date","Requested Amount","Remaining Amount","Monthly Repayment","Start Date","End Date"];
+    private string[] PropertyNames = new[] { "Username", "Email", "CreatedAt", "RequestedAmount","RemainingAmount","MonthlyRepayment","StartDate","EndDate" };
+
+    private List<Applicant> OnGoingLoans = new();
+
+    private List<object> loansAsObjects => OnGoingLoans.Cast<object>().ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        OnGoingLoans = await ApplicantDBService.GetApprovedApplicationsAsync();
+    }
+
+
+
+}    

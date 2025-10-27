@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider authStateProvider
 @inject ClientDatabaseService ClientDbService
+@inject ApplicationService ApplicantDBService
 
 <h1>Application</h1>
 
@@ -53,7 +54,7 @@
                 <ValidationMessage For="()=> Applicant.RequestedAmount" class="text-danger" />
             </div>
             <div class="w-100 d-flex justify-content-center align-items-center">
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button disabled="@isSubmitting" type="submit" class="btn btn-primary">Submit</button>
             </div>
             
         </EditForm>
@@ -72,16 +73,30 @@
         </div>
     </div>
 </div>
-<p>@(authenticationState == null ? "No auth state" : "Auth state available")</p>
+@* <p>@(authenticationState == null ? "No auth state" : "Auth state available")</p> *@
+<p>@message</p>
+
+
 @code{
     [SupplyParameterFromForm]
     public Applicant Applicant {get; set;} = new ();
     [CascadingParameter]
     private AuthenticationState? authenticationState{get; set;}
-    @* private Task<AuthenticationState>? authenticationState{get; set;} *@
+    private string message = "";
+    bool isSubmitting = false;
 
-    private void CreateApplicant(){
-
+    private async Task CreateApplicant(){
+        try{
+            isSubmitting = true;
+            await ApplicantDBService.CreateApplication(Applicant);
+            message = "Application sent successfully";
+        }
+        catch(Exception err){
+            isSubmitting = false;
+            message = "Failed to submit application; contact Admin";
+            Console.WriteLine($"There was an error: {err}");
+        }
+        
     }
 
     private string GetInputClass(string? passedText)
