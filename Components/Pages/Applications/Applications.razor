@@ -1,4 +1,5 @@
 @page "/applications"
+<PageTitle>Applications</PageTitle>
 @using BlazorApp.Components.Reusbale
 @using BlazorApp.Models
 @rendermode InteractiveServer
@@ -7,23 +8,26 @@
 <h1>Applications</h1>
 
 <div>
-    @if(applicants is null){
-        <p>No Applications.............</p>
+    @if(isLoading){
+        <p>Loading...</p>
     }else{
         <Table Headers="@Headers" Rows="@applicantsAsObjects" PropertyNames="@PropertyNames"/>
     }
 </div>
 
 @code{
-    static string[] Headers=["Borrower","Application Date","Requested Amount","Status","Action"];
-    private string[] PropertyNames = new[] { "Name", "CreatedAt", "RequestedAmount", "Status" };
+    static string[] Headers=["Borrower","Email","Application Date","Requested Amount","Status","Action"];
+    private string[] PropertyNames = new[] { "Username","Email","CreatedAt", "RequestedAmount", "Status" };
 
     private List<Applicant> applicants = new();
+    private bool isLoading = false;
     private List<object> applicantsAsObjects => applicants.Cast<object>().ToList();
 
     protected override async Task OnInitializedAsync()
     {
+        isLoading = true;
         applicants = await ApplicantDBService.GetAllApplicationsAsync();
+        isLoading = false;
     }
 
 }

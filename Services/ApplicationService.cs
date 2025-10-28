@@ -22,35 +22,9 @@ namespace BlazorApp.Services
                 applicant.Id = Guid.NewGuid().ToString();
             }
 
-            // // Debug: Check the actual DateTime values and their kinds
-            // Console.WriteLine($"CreatedAt Kind: {applicant.CreatedAt.Kind}, Value: {applicant.CreatedAt}");
-            // Console.WriteLine($"UpdatedAt Kind: {applicant.UpdatedAt.Kind}, Value: {applicant.UpdatedAt}");
-
             // Debug ALL DateTime properties in the Applicant class
             var dateTimeProperties = applicant.GetType().GetProperties()
                 .Where(p => p.PropertyType == typeof(DateTime) || p.PropertyType == typeof(DateTime?));
-
-            Console.WriteLine("=== ALL DateTime Properties ===");
-            foreach (var prop in dateTimeProperties)
-            {
-                try
-                {
-                    if (prop.PropertyType == typeof(DateTime))
-                    {
-                        var value = (DateTime)prop.GetValue(applicant);
-                        Console.WriteLine($"{prop.Name}: Kind={value.Kind}, Value={value}, IsMinValue={value == DateTime.MinValue}");
-                    }
-                    else if (prop.PropertyType == typeof(DateTime?))
-                    {
-                        var value = (DateTime?)prop.GetValue(applicant);
-                        Console.WriteLine($"{prop.Name}: HasValue={value.HasValue}, Kind={value?.Kind}, Value={value}, IsMinValue={value == DateTime.MinValue}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"{prop.Name}: ERROR - {ex.Message}");
-                }
-            }
 
             DocumentReference docRef = _firestoreDb.Collection(CollectionName).Document(applicant.Id);
             await docRef.SetAsync(applicant);

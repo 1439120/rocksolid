@@ -1,7 +1,9 @@
 @page "/loans"
+<PageTitle>Loans</PageTitle>
 @using BlazorApp.Models;
 @using BlazorApp.Components.Reusbale
 @inject ApplicationService ApplicantDBService
+@rendermode InteractiveServer
 
 <h1>Loans</h1>
 
@@ -9,7 +11,7 @@
     @if(OnGoingLoans is null){
         <p>No On Going Loans.............</p>
     }else{
-        <Table Headers="@Headers" Rows="@loansAsObjects" PropertyNames="@PropertyNames"/>
+        <ClickableTable Headers="@Headers" Rows="@OnGoingLoans" PropertyNames="@PropertyNames" ShowActions="true"/>
     }
 </div>
 
@@ -29,3 +31,4 @@
 
 
 }    
+

@@ -2,10 +2,12 @@
 @* @rendermode InteractiveServer *@
 @inject ApplicationService ApplicationDbService
 
-@if(Headers.Length == 0 || Rows.Count == 0){
+@if(Headers.Length == 0){
     <div>
         Loading...
     </div>
+}else if(Rows.Count == 0){
+    <div>No records found</div>
 }
 else{
 <table class="t-class table">
@@ -24,7 +26,7 @@ else{
                             <td>@GetPropertyValue(row, propName)</td>
                         }
                     @if(Headers.Contains("Action")){
-                        <td><button class="btn btn-primary" @onclick="()=>ApproveRow(row)">Approve</button></td>
+                        <td><button class="btn btn-primary" @onclick="()=>ApproveRow(row)" disabled="@ButtonDisabled(row)">Approve</button></td>
                     }
                         
                 </tr>
@@ -37,7 +39,7 @@ else{
     [Parameter] public string[] Headers{get; set;} = [];
     [Parameter] public List<object> Rows{get; set;} = new();
     [Parameter] public string[] PropertyNames { get; set; } = [];
-    string message;
+    string? message;
 
     private object GetPropertyValue(object item, string propertyName)
     {
@@ -57,6 +59,17 @@ else{
             applicant.Approve();
             message = "Application Approved Successfully";
         }
+    }
+
+    private bool ButtonDisabled(Object row){
+         if (row is Applicant applicant)
+        {
+            if(applicant.Status == "Approved"){
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 
     private DateTime GetNextMonthStart()

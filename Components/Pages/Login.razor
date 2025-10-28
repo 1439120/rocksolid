@@ -9,6 +9,7 @@
 @inject IJSRuntime js
 @inject AuthenticationStateProvider authStateProvider
 @inject NavigationManager nvManager
+@inject ClientDatabaseService ClientDbService
 
 
 <div class="login-wrapper d-flex justify-content-center align-items-center">
@@ -71,15 +72,22 @@
             await js.InvokeVoidAsync("alert", "Invalid user name or password");
             return;
         }
+        Console.WriteLine("Firebase authentication passed");
         @* Find the user that is logged in *@
+        var LoggedUser = (await ClientDbService.GetClientByUserId(UserId)).FirstOrDefault();
 
-        var customAuthStateProvider = (CustomAuthenticationProvider)authStateProvider;
-        await customAuthStateProvider.UpdateAuthenticationState(new UserSession{
-            UserName=User.Email,
-            UserID=UserId,
-            Role="Admin"
-        });
-        nvManager.NavigateTo("/dashboard", true);
+        if(LoggedUser != null){
+            var customAuthStateProvider = (CustomAuthenticationProvider)authStateProvider;
+            await customAuthStateProvider.UpdateAuthenticationState(new UserSession{
+                UserName=LoggedUser.Email,
+                UserID=LoggedUser.UserId,
+                Role=LoggedUser.Role
+            });
+            nvManager.NavigateTo("/dashboard", true);
+            Console.WriteLine("User successfully logged in");
+            Console.WriteLine($"Role: {LoggedUser.Role}");
+        }
+        
     }
 
     public class UserModel

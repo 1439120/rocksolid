@@ -46,6 +46,7 @@
                     min="1000"
                     max="25000"
                     step="50"
+                    disabled="@(Applicant.PaymentTerms.Length == 0)"
                     @bind="Applicant.RequestedAmount"
                     @bind:after="CalculateMonthlyAmount"
                     class="range-input" />

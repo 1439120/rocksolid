@@ -1,13 +1,18 @@
 @page "/database"
+<PageTitle>Client Databse</PageTitle>
+@rendermode InteractiveServer
 @using BlazorApp.Components.Reusbale
 @using BlazorApp.Models;
 @inject ClientDatabaseService ClientDbService
 
 <h1>Client Database</h1>
 
+<div class="w-100">
+    <SearchBox OnSearch="GetFilteredClients"/>
+</div>
 <div>
-    @if(clients is null){
-        <p>No clients.</p>
+    @if(isLoading){
+        <p>Loading...</p>
     }else{
         <Table Headers="@Headers" Rows="@clientsAsObjects" PropertyNames="@PropertyNames"/>
     }
@@ -20,10 +25,23 @@
 
     private List<ClientDatabase> clients = new();
     private List<object> clientsAsObjects => clients.Cast<object>().ToList();
+    private bool isLoading = false;
 
     protected override async Task OnInitializedAsync()
     {
+        isLoading = true;
         clients = await ClientDbService.GetAllUsersAsync();
+        isLoading = false;
+    }
+
+    public async Task GetFilteredClients(string searchTerm){
+        Console.WriteLine("Is my button clicked");
+        if(string.IsNullOrEmpty(searchTerm)){
+            clients = await ClientDbService.GetAllUsersAsync();
+            return;
+        }
+        clients = await ClientDbService.SearchUsersByNameAsync(searchTerm);
+        @* StateHasChanged(); *@
     }
 
 }    

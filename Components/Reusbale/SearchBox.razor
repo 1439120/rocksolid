@@ -1,0 +1,33 @@
+@* @typeparam TEntity *@
+
+<div class="d-flex justify-content-center my-3">
+    <div class="input-group" style="max-width: 600px;">
+        <input type="text"
+               class="form-control rounded-start search-input"
+               placeholder="Search clients..."
+               @bind="searchItem"
+               @bind:event="oninput"
+               @onkeypress="HandleKeyPress" :focus="border: none;"/>
+        @* <button class="btn btn-primary rounded-end" @onclick="OnSearchClicked">
+            <i class="bi bi-search"></i> Search
+        </button> *@
+    </div>
+</div>
+
+@code{
+
+    [Parameter]
+    public EventCallback<string> OnSearch {get; set;}
+    private string? searchItem;
+    private async Task OnSearchClicked(){
+        await OnSearch.InvokeAsync(searchItem);
+    }
+
+     private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await OnSearchClicked();
+        }
+    }
+}

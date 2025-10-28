@@ -90,7 +90,7 @@
             await customAuthStateProvider.UpdateAuthenticationState(new UserSession{
                 UserName=User.Email,
                 UserID=User.UserId,
-                Role="Admin"
+                Role="User"
             });
             nvManager.NavigateTo("/dashboard", true);
         }

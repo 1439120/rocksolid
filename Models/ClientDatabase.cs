@@ -18,6 +18,8 @@ namespace BlazorApp.Models
         [FirestoreProperty]
         public string UserId {get; set;}= string.Empty;
         [FirestoreProperty]
+        public string Role {get; set;}= "User";
+        [FirestoreProperty]
         public int NumberOfApplications { get; set; } = 1;
         [FirestoreProperty]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

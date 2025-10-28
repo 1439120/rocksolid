@@ -13,7 +13,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 // Blazor authentication
 builder.Services.AddAuthenticationCore();
-builder.Services.AddAuthorizationCore();
+// builder.Services.AddAuthorizationCore();
 
 
 // Register FirestoreService

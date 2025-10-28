@@ -10,8 +10,6 @@ namespace BlazorApp.Services
 {
     public class ClientDatabaseService
     {
-        // private readonly FirestoreDb _firestoreDb;
-        // private static readonly string CollectionName = "students";
         private const string CollectionName = "client_database";
         private readonly FirestoreDb _firestoreDb;
 
@@ -37,6 +35,7 @@ namespace BlazorApp.Services
                 user.Surname,
                 user.Email,
                 user.UserId,
+                user.Role,
                 user.NumberOfApplications,
                 user.CreatedAt,
                 user.UpdatedAt
@@ -45,7 +44,7 @@ namespace BlazorApp.Services
             return docRef.Id;
         }
 
-        // Read - Get single student
+        // Read - Get single User
         public async Task<ClientDatabase?> GetUserAsync(string id)
         {
             DocumentReference docRef = _firestoreDb.Collection(CollectionName).Document(id);
@@ -71,7 +70,7 @@ namespace BlazorApp.Services
                 .ToList()!;
         }
 
-        // Read - Get all students
+        // Read - Get all Users
         public async Task<List<ClientDatabase>> GetAllUsersAsync()
         {
             Query query = _firestoreDb.Collection(CollectionName);
@@ -79,46 +78,17 @@ namespace BlazorApp.Services
             
             return querySnapshot.Documents
                 .Select(document => document.ConvertTo<ClientDatabase>())
-                .Where(student => student != null)
+                .Where(user => user != null)
                 .ToList()!;
         }
 
-        // Read - Get students with filtering by course
-        // public async Task<List<Student>> GetStudentsByCourseAsync(string course)
-        // {
-        //     Query query = _firestoreDb.Collection(CollectionName)
-        //         .WhereEqualTo("Course", course)
-        //         .OrderBy("LastName");
-                
-        //     QuerySnapshot querySnapshot = await query.GetSnapshotAsync();
-            
-        //     return querySnapshot.Documents
-        //         .Select(document => document.ConvertTo<Student>())
-        //         .Where(student => student != null)
-        //         .ToList()!;
-        // }
-
-        // Read - Get students with filtering by year
-        // public async Task<List<Student>> GetStudentsByYearAsync(int year)
-        // {
-        //     Query query = _firestoreDb.Collection(CollectionName)
-        //         .WhereEqualTo("Year", year)
-        //         .OrderBy("LastName");
-                
-        //     QuerySnapshot querySnapshot = await query.GetSnapshotAsync();
-            
-        //     return querySnapshot.Documents
-        //         .Select(document => document.ConvertTo<Student>())
-        //         .Where(student => student != null)
-        //         .ToList()!;
-        // }
 
         // Update
         public async Task UpdateUserAsync(ClientDatabase user)
         {
             if (string.IsNullOrEmpty(user.Id))
             {
-                throw new ArgumentException("Student ID cannot be null or empty");
+                throw new ArgumentException("User ID cannot be null or empty");
             }
 
             DocumentReference docRef = _firestoreDb.Collection(CollectionName).Document(user.Id);
@@ -139,7 +109,7 @@ namespace BlazorApp.Services
             await docRef.DeleteAsync();
         }
 
-        // Check if student exists
+        // Check if User exists
         public async Task<bool> UserExistsAsync(string id)
         {
             DocumentReference docRef = _firestoreDb.Collection(CollectionName).Document(id);
@@ -147,37 +117,8 @@ namespace BlazorApp.Services
             return snapshot.Exists;
         }
 
-        // Get students with pagination
-        // public async Task<(List<Student> Students, string? LastDocumentId)> GetStudentsPagedAsync(int pageSize, string? lastDocumentId = null)
-        // {
-        //     Query query = _firestoreDb.Collection(CollectionName)
-        //         .OrderBy("LastName")
-        //         .Limit(pageSize);
 
-        //     if (!string.IsNullOrEmpty(lastDocumentId))
-        //     {
-        //         var lastDoc = _firestoreDb.Collection(CollectionName).Document(lastDocumentId);
-        //         var lastSnapshot = await lastDoc.GetSnapshotAsync();
-        //         if (lastSnapshot.Exists)
-        //         {
-        //             query = query.StartAfter(lastSnapshot);
-        //         }
-        //     }
-
-        //     QuerySnapshot querySnapshot = await query.GetSnapshotAsync();
-        //     var students = querySnapshot.Documents
-        //         .Select(document => document.ConvertTo<Student>())
-        //         .Where(student => student != null)
-        //         .ToList()!;
-
-        //     string? nextLastId = querySnapshot.Documents.Count > 0 
-        //         ? querySnapshot.Documents.Last().Id 
-        //         : null;
-
-        //     return (students, nextLastId);
-        // }
-
-        // Real-time updates for students
+        // Real-time updates for users
         public FirestoreChangeListener ListenToUsers(Action<QuerySnapshot> onChange)
         {
             Query query = _firestoreDb.Collection(CollectionName);
@@ -187,7 +128,7 @@ namespace BlazorApp.Services
             });
         }
 
-        // Search students by name
+        // Search users by name
         public async Task<List<ClientDatabase>> SearchUsersByNameAsync(string searchTerm)
         {
             // Note: Firestore doesn't support full-text search natively

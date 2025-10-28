@@ -1,0 +1,28 @@
+@page "/loans/view"
+@page "/loans/view/{Id}"
+
+
+@if (!string.IsNullOrEmpty(Id))
+{
+    <p>Viewing loan ID: @Id</p>
+    <!-- Your loan viewing logic here -->
+}
+else
+{
+    <p>Please specify a loan ID</p>
+}
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    protected override void OnParametersSet()
+    {
+
+    }
+
+    private void LoadLoanData(long loanId)
+    {
+        // Your data loading logic here
+    }
+}

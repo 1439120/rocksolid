@@ -1,0 +1,102 @@
+@typeparam TEntity
+@inject NavigationManager Navigation
+
+@if (!Rows.Any())
+{
+    <div class="no-records">No records found</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover table-striped">
+            <thead class="table-header">
+                <tr>
+                    @foreach (var header in Headers)
+                    {
+                        <th>@header</th>
+                    }
+                    @if (ShowActions)
+                    {
+                        <th class="actions-column">Actions</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var (row, index) in Rows.Select((row, index) => (row, index)))
+                {
+                    <tr class="@GetRowClass(index)"
+                        @onclick="@(() => HandleRowClick(row))">
+                        @foreach (var propName in PropertyNames)
+                        {
+                            <td>@GetPropertyValue(row, propName)</td>
+                        }
+                        @if (ShowActions)
+                        {
+                            <td class="actions-column">
+                                <button @onclick="@(() => OnEdit.InvokeAsync(row))" 
+                                        class="btn btn-sm btn-outline-primary">
+                                    Edit
+                                </button>
+                                <button @onclick="@(() => OnDelete.InvokeAsync(row))" 
+                                        class="btn btn-sm btn-outline-danger">
+                                    Delete
+                                </button>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    [Parameter] public List<TEntity> Rows { get; set; } = new();
+    [Parameter] public string[] Headers { get; set; } = Array.Empty<string>();
+    [Parameter] public string[] PropertyNames { get; set; } = Array.Empty<string>();
+    [Parameter] public bool ShowActions { get; set; }
+    [Parameter] public EventCallback<TEntity> OnRowClick { get; set; }
+    [Parameter] public EventCallback<TEntity> OnEdit { get; set; }
+    [Parameter] public EventCallback<TEntity> OnDelete { get; set; }
+    [Parameter] public bool Striped { get; set; } = true;
+    [Parameter] public bool Hover { get; set; } = true;
+
+    private object? GetPropertyValue(TEntity item, string propertyName)
+    {
+        if (item == null) return null;
+        var property = typeof(TEntity).GetProperty(propertyName);
+        return property?.GetValue(item);
+    }
+
+    private string GetRowClass(int index)
+    {
+        var classes = new List<string>();
+        if (Striped && index % 2 == 1) classes.Add("table-row-striped");
+        if (Hover) classes.Add("table-row-hover");
+        return string.Join(" ", classes);
+    }
+
+    private void HandleRowClick(TEntity row)
+    {
+        Console.WriteLine("Is this even pressed");
+        // Default behavior: redirect to /view/{id}
+        RedirectToViewPage(row);
+    }
+
+    private void RedirectToViewPage(TEntity row)
+    {
+        // Get the ID property from the entity (assuming it's named "Id")
+        var idProperty = typeof(TEntity).GetProperty("Id");
+        if (idProperty != null)
+        {
+            var idValue = idProperty.GetValue(row);
+            if (idValue != null)
+            {
+                var currentUri = Navigation.ToAbsoluteUri(Navigation.Uri);
+                Navigation.NavigateTo($"{currentUri}/view/{idValue}");
+            }
+        }
+    }
+
+
+}

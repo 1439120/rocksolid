@@ -151,4 +151,14 @@ box-shadow: 0 1px 0 0 #0d6efd;
     to { opacity: 1; transform: translateY(0); }
 }
 
+.search-input:focus {
+    outline: none;                 /* remove default blue outline */
+    box-shadow: 0 0 6px #eaf0f9;  /* subtle shadow instead */
+    border-color: #f5f8fb;        /* soft border highlight */
+}
+
+.search-input {
+    border-radius: 0.5rem 0 0 0.5rem
+}
+
   /* -------------------------------------------------- */
