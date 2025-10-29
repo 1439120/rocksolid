@@ -41,8 +41,6 @@ It automates the loan lifecycle — from application and approval to repayment t
 | **Hosting** | AWS |
 | **Version Control** | Git + GitHub |
 
-> 💡 *This setup can be customized depending on your deployment stack.*
-
 ---
 
 ## ⚙️ Installation & Setup
