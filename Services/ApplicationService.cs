@@ -112,11 +112,12 @@ namespace BlazorApp.Services
         }
 
         // Search applicant by name
-        public async Task<List<Applicant>> SearchApplicationByNameAsync(string searchTerm)
+        public async Task<List<Applicant>> SearchApplicationByNameAsync(string searchTerm, bool loan=false)
         {
             // Note: Firestore doesn't support full-text search natively
             // This is a basic implementation that checks contains on client side
             var allApplications = await GetAllApplicationsAsync();
+            if(loan) allApplications = await GetApprovedApplicationsAsync();
             
             return allApplications
                 .Where(s => 

@@ -6,7 +6,9 @@
 @inject ApplicationService ApplicantDBService
 
 <h1>Applications</h1>
-
+<div class="w-100">
+    <SearchBox OnSearch="GetFilteredApplications"/>
+</div>
 <div>
     @if(isLoading){
         <p>Loading...</p>
@@ -28,6 +30,10 @@
         isLoading = true;
         applicants = await ApplicantDBService.GetAllApplicationsAsync();
         isLoading = false;
+    }
+
+    private async Task GetFilteredApplications(string searchTerm){
+        applicants = await ApplicantDBService.SearchApplicationByNameAsync(searchTerm);
     }
 
 }

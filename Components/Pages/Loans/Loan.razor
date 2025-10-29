@@ -6,7 +6,9 @@
 @rendermode InteractiveServer
 
 <h1>Loans</h1>
-
+<div class="w-100">
+    <SearchBox OnSearch="GetFilteredLoans"/>
+</div>
 <div>
     @if(OnGoingLoans is null){
         <p>No On Going Loans.............</p>
@@ -28,6 +30,10 @@
         OnGoingLoans = await ApplicantDBService.GetApprovedApplicationsAsync();
     }
 
+
+    private async Task GetFilteredLoans(string searchTerm){
+        OnGoingLoans = await ApplicantDBService.SearchApplicationByNameAsync(searchTerm, true);
+    }
 
 
 }    
