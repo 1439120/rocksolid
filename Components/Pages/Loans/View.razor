@@ -4,8 +4,55 @@
 
 @if (!string.IsNullOrEmpty(Id))
 {
-    <p>Viewing loan ID: @Id</p>
-    <!-- Your loan viewing logic here -->
+    @* <p>Viewing loan ID: @Id</p>
+    <!-- Your loan viewing logic here --> *@
+    <div class="m-6 p-6" style="max-width: 1000px;">
+        <div class="row">
+            <table class="table">
+                <tr>
+                    <td>
+                        <div><strong>Ref No:</strong> LOR54646</div>
+                    </td>
+                    <td>
+                        <div><strong>Date Approved:</strong> 22 May 2022</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div><strong>Name:</strong> Nkosana</div>
+                    </td>
+                    <td>
+                        <div><strong>Surname:</strong> Mabuza</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div><strong>Requested Amount:</strong> nkosana@email.com</div>
+                    </td>
+                    <td>
+                        <div><strong>Remaining Amount:</strong> Mabuza</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="row">
+            <div class="h3">Installments</div>
+                <table class="table">
+                    <tr>
+                        <th>Amount</th>
+                        <th>Payment Date</th>
+                        <th>Status</th>
+                    </tr>
+                    @foreach(var num in GetMonthlyIntsallments()){
+                        <tr>
+                            <td>@num.Amount</td>
+                            <td>@num.PaymentDate</td>
+                            <td>@num.Status</td>
+                        </tr>
+                     }
+                </table>
+        </div>
+    </div>
 }
 else
 {
@@ -24,5 +71,15 @@ else
     private void LoadLoanData(long loanId)
     {
         // Your data loading logic here
+    }
+
+    private List<Installment> GetMonthlyIntsallments(){
+        return new List<Installment>{
+                new Installment{PaymentDate= DateTime.Today.Add(TimeSpan.FromDays(30)) ,Status="Paid", Amount=230},
+                new Installment{PaymentDate= DateTime.Today.Add(TimeSpan.FromDays(60)) ,Status="Paid", Amount=230},
+                new Installment{PaymentDate= DateTime.Today.Add(TimeSpan.FromDays(90)) ,Status="Paid", Amount=230},
+                new Installment{PaymentDate= DateTime.Today.Add(TimeSpan.FromDays(120)) ,Status="Paid", Amount=230},
+                new Installment{PaymentDate= DateTime.Today.Add(TimeSpan.FromDays(150)) ,Status="Unpaid", Amount=230},
+            };
     }
 }
