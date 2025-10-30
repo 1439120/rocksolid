@@ -26,6 +26,19 @@ namespace BlazorApp.Services
             await docRef.SetAsync(installment);
             return docRef.Id;
         }
+        // Read
+        public async Task<List<Installment>> Find(string installmentId)
+        {
+            Query query = _firestoreDb.Collection(CollectionName)
+                .WhereEqualTo("Id", installmentId);
+                
+            QuerySnapshot querySnapshot = await query.GetSnapshotAsync();
+            
+            return querySnapshot.Documents
+                .Select(document => document.ConvertTo<Installment>())
+                .Where(user => user != null)
+                .ToList()!;
+        }
 
         // Read - Get installments
         public async Task<List<Installment>> GetInstallments(string ApplicantId)

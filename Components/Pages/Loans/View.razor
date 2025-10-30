@@ -68,6 +68,7 @@
                             <th scope="col" class="ps-4">Amount</th>
                             <th scope="col">Payment Date</th>
                             <th scope="col">Status</th>
+                            <th scope="col" class="text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -87,6 +88,16 @@
                                           "bg-danger")">
                                         @installment.Status
                                     </span>
+                                </td>
+                                <td>
+                                    <div class="w-100 d-flex justify-content-center">
+                                        @if(installment.Status == "Paid"){
+                                            <button disabled class="btn btn-pay">Pay</button>
+                                        }else{
+                                            <NavLink class="btn btn-pay" href="@($"/payments/{installment.Id}")">Pay</NavLink >
+                                        }
+                                        
+                                    </div>
                                 </td>
                             </tr>
                         }

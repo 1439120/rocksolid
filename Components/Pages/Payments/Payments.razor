@@ -1,0 +1,38 @@
+@page "/payments/{InstallmentId}"
+@inject InstallmentService InstallService
+@inject ApplicationService ApplicantService
+@inject NavigationManager navManager
+
+<p>Processing payment... please wait.</p>
+
+@code{
+    [Parameter]
+    public string? InstallmentId{get;set;}
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (string.IsNullOrEmpty(InstallmentId))
+            return;
+
+        var installments = await InstallService.Find(InstallmentId);
+
+        if (installments != null && installments.Count > 0)
+        {
+            var installment = installments[0];
+
+            await InstallService.UpdateInstallmentFieldsAsync(installment.Id, new Dictionary<string, object>
+            {
+                { "Status", "Paid" },
+                { "UpdatedAt", DateTime.UtcNow }
+            });
+
+            var applicant = await ApplicantService.GetApplicantByID(installment.ApplicantId);
+            if(applicant != null) await ApplicantService.UpdateApplicantFieldsAsync(installment.ApplicantId, new Dictionary<string, object> {
+                { "RemainingAmount", applicant.RemainingAmount - installment.Amount }
+            });
+
+            navManager.NavigateTo($"/loans/view/{installment.ApplicantId}", true);
+        }
+    }
+}
