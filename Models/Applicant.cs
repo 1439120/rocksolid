@@ -30,7 +30,7 @@ namespace BlazorApp.Models
         [FirestoreProperty]
         public string Status {get; set;} = "New";
         [FirestoreProperty]
-        public string Reference{get;set;}= "";
+        public string Reference{get;set;}= $"LOAN/{DateTime.UtcNow:yyyyMMdd}/{Guid.NewGuid().ToString("N")[..4].ToUpper()}";
         [FirestoreProperty]
         public string ClientId{get;set;}= "";
         [FirestoreProperty]
@@ -46,6 +46,8 @@ namespace BlazorApp.Models
         [FirestoreProperty]
         public DateTime EndDate{get;set;} = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
         [FirestoreProperty]
+        public DateTime ApprovedDate{get;set;} = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
+        [FirestoreProperty]
         public float RemainingAmount{get;set;}
         [FirestoreProperty]
         public float LinkedInterest{get;set;}
@@ -53,6 +55,7 @@ namespace BlazorApp.Models
         public float MonthlyRepayment{get;set;}
          public void Approve(){
             Status = "Approved";
+            ApprovedDate = DateTime.UtcNow;
         }
         
     }

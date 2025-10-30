@@ -1,67 +1,124 @@
 @page "/loans/view"
 @page "/loans/view/{Id}"
+@using BlazorApp.Models
+@inject ApplicationService ApplicantService
 
-
-@if (!string.IsNullOrEmpty(Id))
+@if (applicant != null)
 {
-    @* <p>Viewing loan ID: @Id</p>
-    <!-- Your loan viewing logic here --> *@
-    <div class="m-6 p-6" style="max-width: 1000px;">
-        <div class="row">
-            <table class="table">
-                <tr>
-                    <td>
-                        <div><strong>Ref No:</strong> LOR54646</div>
-                    </td>
-                    <td>
-                        <div><strong>Date Approved:</strong> 22 May 2022</div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div><strong>Name:</strong> Nkosana</div>
-                    </td>
-                    <td>
-                        <div><strong>Surname:</strong> Mabuza</div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div><strong>Requested Amount:</strong> nkosana@email.com</div>
-                    </td>
-                    <td>
-                        <div><strong>Remaining Amount:</strong> Mabuza</div>
-                    </td>
-                </tr>
-            </table>
+    <div class="container my-5" style="max-width: 1000px;">
+    <!-- Loan Summary Card -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0 fw-bold">Loan Summary</h4>
         </div>
-        <div class="row">
-            <div class="h3">Installments</div>
-                <table class="table">
-                    <tr>
-                        <th>Amount</th>
-                        <th>Payment Date</th>
-                        <th>Status</th>
-                    </tr>
-                    @foreach(var num in GetMonthlyIntsallments()){
-                        <tr>
-                            <td>@num.Amount</td>
-                            <td>@num.PaymentDate</td>
-                            <td>@num.Status</td>
-                        </tr>
-                     }
-                </table>
+        <div class="card-body">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between border-bottom pb-2">
+                        <strong class="text-muted">Ref No:</strong>
+                        <span class="fw-semibold">@applicant.Reference</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom pb-2 mt-3">
+                        <strong class="text-muted">Name:</strong>
+                        <span class="fw-semibold">@applicant.Name</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom pb-2 mt-3">
+                        <strong class="text-muted">Email:</strong>
+                        <span class="fw-semibold">@applicant.Email</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between border-bottom pb-2">
+                        <strong class="text-muted">Date Approved:</strong>
+                        <span class="fw-semibold">@applicant.ApprovedDate</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom pb-2 mt-3">
+                        <strong class="text-muted">Surname:</strong>
+                        <span class="fw-semibold">@applicant.Surname</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom pb-2 mt-3">
+                        <strong class="text-muted">Requested Amount:</strong>
+                        <span class="fw-semibold text-success">R @applicant.RequestedAmount</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Remaining Balance Highlight -->
+            <div class="mt-4 p-3 bg-light rounded">
+                <div class="d-flex justify-content-between align-items-center">
+                    <strong class="text-muted h5 mb-0">Remaining Amount:</strong>
+                    <span class="h4 fw-bold text-danger">R @applicant.RemainingAmount</span>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Installments Table Card -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">Installment Schedule</h5>
+            <span class="badge bg-light text-dark">@applicant.NumberOfPayments installments</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="ps-4">Amount</th>
+                            <th scope="col">Payment Date</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var installment in GetMonthlyIntsallments())
+                        {
+                            <tr>
+                                <td class="ps-4 fw-semibold">
+                                    R @installment.Amount.ToString("N2")
+                                </td>
+                                <td>
+                                    @installment.PaymentDate.ToString("dd MMM yyyy")
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill 
+                                        @(installment.Status == "Paid" ? "bg-success" : 
+                                          installment.Status == "Pending" ? "bg-warning text-dark" : 
+                                          "bg-danger")">
+                                        @installment.Status
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-light text-muted small">
+            <em>Last updated: @DateTime.Now.ToString("dd MMMM yyyy 'at' HH:mm")</em>
+        </div>
+    </div>
+</div>
 }
 else
 {
-    <p>Please specify a loan ID</p>
+    <p>Loan application not found</p>
 }
 
 @code {
     [Parameter]
     public string? Id { get; set; }
+    private Applicant applicant = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if(!string.IsNullOrEmpty(Id)){
+            var getApplicant = await ApplicantService.GetApplicantByID(Id);
+            if(getApplicant != null) applicant = getApplicant;
+        }
+            
+
+    }
 
     protected override void OnParametersSet()
     {
@@ -82,4 +139,6 @@ else
                 new Installment{PaymentDate= DateTime.Today.Add(TimeSpan.FromDays(150)) ,Status="Unpaid", Amount=230},
             };
     }
+
+    @* private Applicant GetCorresponind() *@
 }

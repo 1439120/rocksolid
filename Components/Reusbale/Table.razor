@@ -53,6 +53,8 @@ else{
             await ApplicationDbService.UpdateApplicantFieldsAsync(applicant.Id, new Dictionary<string, object>{
               {"RemainingAmount", applicant.RequestedAmount},
               {"Status", "Approved"},
+              {"ApprovedDate", DateTime.UtcNow},
+              {"Reference", $"LOAN/{DateTime.UtcNow:yyyyMMdd}/{Guid.NewGuid().ToString("N")[..4].ToUpper()}"},
               {"StartDate", GetNextMonthStart()},
               {"EndDate", GetEndOfPeriod(applicant.NumberOfPayments)}
             });
