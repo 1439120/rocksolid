@@ -30,7 +30,7 @@ namespace BlazorApp.Models
         [FirestoreProperty]
         public string Status {get; set;} = "New";
         [FirestoreProperty]
-        public string Reference{get;set;}= $"LOAN/{DateTime.UtcNow:yyyyMMdd}/{Guid.NewGuid().ToString("N")[..4].ToUpper()}";
+        public string Reference{get;set;}= "";
         [FirestoreProperty]
         public string ClientId{get;set;}= "";
         [FirestoreProperty]

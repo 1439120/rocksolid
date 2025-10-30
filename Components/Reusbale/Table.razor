@@ -1,6 +1,7 @@
 @using BlazorApp.Models
 @* @rendermode InteractiveServer *@
 @inject ApplicationService ApplicationDbService
+@inject InstallmentService InstallService
 
 @if(Headers.Length == 0){
     <div>
@@ -26,7 +27,7 @@ else{
                             <td>@GetPropertyValue(row, propName)</td>
                         }
                     @if(Headers.Contains("Action")){
-                        <td><button class="btn btn-primary" @onclick="()=>ApproveRow(row)" disabled="@ButtonDisabled(row)">Approve</button></td>
+                        <td><button class="btn btn-primary" @onclick="()=>ApproveRow(row)" disabled="@loading">Approve</button></td>
                     }
                         
                 </tr>
@@ -40,6 +41,7 @@ else{
     [Parameter] public List<object> Rows{get; set;} = new();
     [Parameter] public string[] PropertyNames { get; set; } = [];
     string? message;
+    bool loading = false;
 
     private object GetPropertyValue(object item, string propertyName)
     {
@@ -50,16 +52,25 @@ else{
     private async Task ApproveRow(Object row){
          if (row is Applicant applicant)
         {
+            loading = true;
             await ApplicationDbService.UpdateApplicantFieldsAsync(applicant.Id, new Dictionary<string, object>{
               {"RemainingAmount", applicant.RequestedAmount},
               {"Status", "Approved"},
               {"ApprovedDate", DateTime.UtcNow},
+              {"UpdatedAt", DateTime.UtcNow},
               {"Reference", $"LOAN/{DateTime.UtcNow:yyyyMMdd}/{Guid.NewGuid().ToString("N")[..4].ToUpper()}"},
               {"StartDate", GetNextMonthStart()},
               {"EndDate", GetEndOfPeriod(applicant.NumberOfPayments)}
             });
             applicant.Approve();
             message = "Application Approved Successfully";
+
+            foreach(var installment in GetInstallments(applicant.NumberOfPayments, applicant.MonthlyRepayment)){
+                installment.ApplicantId = applicant.Id;
+                await InstallService.Add(installment);
+            }
+            loading = false;
+            message = "Installments generated successully";
         }
     }
 
@@ -93,6 +104,25 @@ else{
         var endDate = startDate.AddMonths(noInstall).AddDays(-1);
         
         return DateTime.SpecifyKind(endDate, DateTimeKind.Utc);
+    }
+
+    private List<Installment> GetInstallments(int noInstall, float loanAmount){
+
+        var installments = new List<Installment>();
+        var startDate = DateTime.Today;
+
+        for(int i = 1; i < noInstall; i++){
+
+            var nextMonth = startDate.AddMonths(i);
+            int lastDay = DateTime.DaysInMonth(nextMonth.Year, nextMonth.Month);
+            @* var paymentDate = new DateTime(nextMonth.Year, nextMonth.Month, lastDay); *@
+            var paymentDate = new DateTime(nextMonth.Year, nextMonth.Month, lastDay, 0, 0, 0, DateTimeKind.Utc);
+
+            installments.Add(new Installment{
+                PaymentDate= paymentDate, Amount=loanAmount
+            });
+        }
+        return installments;
     }
 
 }
