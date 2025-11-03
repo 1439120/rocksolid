@@ -30,9 +30,9 @@
             </div>
         </div>
         <div class="my-4 d-flex gap-5 m-5">
-            <LoanCard Title="Personal Loan" LoanItems="@PersonalLoanItems" TitleColor="blue"/>
-            <LoanCard Title="House Loan" LoanItems="@HouseLoanItems" TitleColor="grey"/>
-            <LoanCard Title="Car Loan" LoanItems="@CarLoanItems" TitleColor="orange"/>
+            <LoanCard Title="Personal Loan" LoanItems="@PersonalLoanItems" TitleColor="blue" LoanType="@LoanTypes.Personal"/>
+            <LoanCard Title="House Loan" LoanItems="@HouseLoanItems" TitleColor="grey" LoanType="@LoanTypes.Home"/>
+            <LoanCard Title="Car Loan" LoanItems="@CarLoanItems" TitleColor="orange" LoanType="@LoanTypes.Car"/>
         </div>
     </Authorized>
     <NotAuthorized>
@@ -80,21 +80,8 @@
     
 </div>
     
-@* <div>
-    <h2>Current Application</h2>
-    using System.ComponentModel.DataAnnotations;
-</div> *@
-
-@* <div>
-    <div class="d-flex gap-3 align-items-center">
-        <p class="fs-3 fw-bold">All Loans</p> <p class="fs-9 align-items-down fw-bold border rounded-4 p-1 px-3 bg-primary text-white">Apply</p>
-    </div>
-    
-    <Table/>
-</div> *@
 
 @code{
-    @* private ClientDatabase User => ClientDbService.GetClientByUserId(context?.User?.Identity?.UserId)[0]; *@
     private ClientDatabase? User;
     private LoanFeature[] PersonalLoanItems = [
     new LoanFeature{IconName=IconName.CashCoin, Text="Borrow up to <strong>R25,000</strong>", IconColor="green"},

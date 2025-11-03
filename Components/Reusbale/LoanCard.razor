@@ -13,7 +13,7 @@
         </ul>
 
         <div class="w-100 d-flex justify-content-center">
-            <NavLink class="btn btn-primary rounded-pill fw-semibold" style="min-width: 150px;" href="/applications/create">
+            <NavLink class="btn btn-primary rounded-pill fw-semibold" style="min-width: 150px;" href="@LoanApplicationUrl()">
                 Apply Now
             </NavLink>
         </div>
@@ -25,5 +25,21 @@
     [Parameter] public string Title{get;set;}="";
     [Parameter] public string TitleColor{get;set;}="";
     [Parameter] public LoanFeature[] LoanItems{get;set;} = [];
+    [Parameter] public LoanTypes LoanType{get;set;} = LoanTypes.None;
+
+    private string LoanApplicationUrl(){
+        if(LoanType == LoanTypes.None) return "/applications/create";
+
+        switch(LoanType){
+            case LoanTypes.Personal:
+                return "/applications/create/5673";
+            case LoanTypes.Home:
+                return "/applications/create/5674";
+            case LoanTypes.Car:
+                return "/applications/create/5675";
+        }
+
+        return "";
+    }
 
 }

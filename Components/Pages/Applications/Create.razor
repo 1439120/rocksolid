@@ -1,4 +1,5 @@
 @page "/applications/create"
+@page "/applications/create/{LoanRef}"
 @rendermode InteractiveServer
 @using BlazorApp.Models
 @using Microsoft.AspNetCore.Components.Authorization
@@ -43,8 +44,8 @@
                 <ValidationMessage For="()=> Applicant.RequestedAmount" class="text-danger"/> *@
                 <input type="range"
                     id="loanAmount"
-                    min="1000"
-                    max="25000"
+                    min="@MinLoanAmount"
+                    max="@MaxLoanAmount"
                     step="50"
                     disabled="@(Applicant.PaymentTerms.Length == 0)"
                     @bind="Applicant.RequestedAmount"
@@ -79,12 +80,18 @@
 
 
 @code{
+    [Parameter] public string LoanRef{get;set;}="";
     [SupplyParameterFromForm]
     public Applicant Applicant {get; set;} = new ();
     [CascadingParameter]
     private AuthenticationState? authenticationState{get; set;}
     private string message = "";
     bool isSubmitting = false;
+
+    int MinLoanAmount = 1000;
+    int MaxLoanAmount = 25000;
+    int MaxLinkedInterest = 29;
+    int MinLinkedInterest = 20;
 
     private async Task CreateApplicant(){
         try{
@@ -111,10 +118,10 @@
             @* Number of repayments *@
             Applicant.NumberOfPayments = int.Parse(Applicant.PaymentTerms);
             @* Calculate the interest based on how much you want *@
-            const float min_interest = 20;
-            const float max_interest = 29;
+            float min_interest = (float) MinLinkedInterest;
+            float max_interest = (float) MinLinkedInterest;
             @* R1000 interest is 29 and R25000 interest is 20 *@
-            Applicant.LinkedInterest = -(Applicant.RequestedAmount)*((max_interest - min_interest) / (24000)) + max_interest;
+            Applicant.LinkedInterest = -(Applicant.RequestedAmount)*((max_interest - min_interest) / (MaxLoanAmount - MinLoanAmount)) + max_interest;
             @* Cralculate the interest based on period *@
             const float min_frequency_interest = 0;
             const float max_frequency_interest = 3;
@@ -126,11 +133,7 @@
             var r = (Applicant.LinkedInterest /100) / 12;
             var n = Applicant.NumberOfPayments;
             Applicant.MonthlyRepayment = P*(r * MathF.Pow((1 + r), n))/(MathF.Pow((1 + r), n)-1);
-            @* Console.WriteLine("Do we get here");
-            Console.WriteLine(Applicant.NumberOfPayments );
-            Console.WriteLine(Applicant.MonthlyRepayment); *@
         }else{
-            @* Console.WriteLine("Do we update"); *@
             Applicant.NumberOfPayments = 0;
             Applicant.MonthlyRepayment = 0;
         }
@@ -167,5 +170,30 @@
         Applicant.ClientId = client.Id;
         Applicant.UserId = client.UserId;
     }
+
+    private void UpdateLoanValues(){
+        if(!string.IsNullOrEmpty(LoanRef)){
+            if(LoanRef == "5673"){
+                MinLoanAmount = 1000;
+                MaxLoanAmount = 25000;
+                MaxLinkedInterest = 29;
+                MinLinkedInterest = 20;
+            }
+            if(LoanRef == "5674"){
+                MinLoanAmount = 200000;
+                MaxLoanAmount = 12000000;
+                MaxLinkedInterest = 18;
+                MinLinkedInterest = 8;
+            }
+            if(LoanRef == "5675"){
+                MinLoanAmount = 50000;
+                MaxLoanAmount = 2000000;
+                MaxLinkedInterest = 22;
+                MinLinkedInterest = 10;
+            }
+        }
+    }
+
+
 
 }
