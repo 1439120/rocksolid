@@ -1,4 +1,5 @@
 ﻿@page "/"
+@inject NavigationManager navManager
 
 <PageTitle>Home</PageTitle>
 
@@ -7,3 +8,11 @@
 Welcome to your new app.
 
 <Counter IncrementAmount="3"/>
+
+@code{
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(1);
+       navManager.NavigateTo("/dashboard", true);
+    }
+}

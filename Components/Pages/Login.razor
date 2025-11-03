@@ -30,7 +30,7 @@
 
             <div class="mb-3 position-relative">
                 <label for="password" class="form-label fw-semibold">Password</label>
-                <InputText id="password" @bind-Value="User.Password" type="password" class="form-control form-control-lg" placeholder="Enter your password" />
+                <InputText id="password" @bind-Value="User.Password" @onfocus="ClearErrors" type="password" class="form-control form-control-lg" placeholder="Enter your password" />
                 <ValidationMessage For="() => User.Password" class="text-danger small" />
             </div>
 
@@ -42,7 +42,11 @@
                 <a href="/forgot-password" class="text-decoration-none small text-primary">Forgot password?</a>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 py-2 fs-6 fw-semibold">
+            <div>
+                <P class="text-danger">@message</P>
+            </div>
+
+            <button type="submit" disabled="@isLoaing" class="btn btn-primary w-100 py-2 fs-6 fw-semibold">
                 Login
             </button>
 
@@ -63,13 +67,19 @@
     private bool RememberMe { get; set; } = false;
     private UserModel User = new();
     private string message = "";
+    bool isLoaing = false;
 
     private async Task HandleLogin()
     {
+        message = "";
+        isLoaing = true;
         var UserId = await FirebaseAuth.Login(User.Email, User.Password);
-        message = FirebaseAuth.Message;
+        @* message = FirebaseAuth.Message; *@
+        
         if(!FirebaseAuth.IsLoggedIn){
-            await js.InvokeVoidAsync("alert", "Invalid user name or password");
+            @* await js.InvokeVoidAsync("alert", "Invalid user name or password"); *@
+            message = "Invalid user name or password";
+            isLoaing = false;
             return;
         }
         Console.WriteLine("Firebase authentication passed");
@@ -90,12 +100,16 @@
         
     }
 
+    private void ClearErrors(){
+        message = "";
+    }
+
     public class UserModel
     {
         [Required, EmailAddress]
         public string Email { get; set; } = string.Empty;
 
-        [Required, MinLength(6)]
+        [Required]
         public string Password { get; set; } = string.Empty;
     }
 }    

@@ -15,10 +15,10 @@ else
                     {
                         <th>@header</th>
                     }
-                    @if (ShowActions)
+                    @* @if (ShowActions)
                     {
                         <th class="actions-column">Actions</th>
-                    }
+                    } *@
                 </tr>
             </thead>
             <tbody>
@@ -30,7 +30,7 @@ else
                         {
                             <td>@GetPropertyValue(row, propName)</td>
                         }
-                        @if (ShowActions)
+                        @* @if (ShowActions)
                         {
                             <td class="actions-column">
                                 <button @onclick="@(() => OnEdit.InvokeAsync(row))" 
@@ -42,7 +42,7 @@ else
                                     Delete
                                 </button>
                             </td>
-                        }
+                        } *@
                     </tr>
                 }
             </tbody>
