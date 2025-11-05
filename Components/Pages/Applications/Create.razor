@@ -63,7 +63,7 @@
     </div>
     <div class="col-md-4">
         <div>
-            <h5 class="text-center fs-2 fw-bold">Offers</h5>
+            <h5 class="text-center fs-2 fw-bold">@loanName Offers</h5>
             <p class="text-center">Estimated monthly repayment for your configuration</p>
         </div>
         <div class="mx-5">
@@ -87,11 +87,11 @@
     private AuthenticationState? authenticationState{get; set;}
     private string message = "";
     bool isSubmitting = false;
-
     int MinLoanAmount = 1000;
     int MaxLoanAmount = 25000;
     int MaxLinkedInterest = 29;
     int MinLinkedInterest = 20;
+    string loanName ="";
 
     private async Task CreateApplicant(){
         try{
@@ -157,6 +157,7 @@
             var User = users.FirstOrDefault();
             if(User != null){
                 PrepareApplication(User);
+                UpdateLoanValues();
                 StateHasChanged(); //
             }
         }
@@ -178,22 +179,22 @@
                 MaxLoanAmount = 25000;
                 MaxLinkedInterest = 29;
                 MinLinkedInterest = 20;
+                loanName = "Personal Loan";
             }
             if(LoanRef == "5674"){
                 MinLoanAmount = 200000;
                 MaxLoanAmount = 12000000;
                 MaxLinkedInterest = 18;
                 MinLinkedInterest = 8;
+                loanName = "Home Loan";
             }
             if(LoanRef == "5675"){
                 MinLoanAmount = 50000;
                 MaxLoanAmount = 2000000;
                 MaxLinkedInterest = 22;
                 MinLinkedInterest = 10;
+                loanName = "Car Loan";
             }
         }
     }
-
-
-
 }
