@@ -119,7 +119,7 @@
             Applicant.NumberOfPayments = int.Parse(Applicant.PaymentTerms);
             @* Calculate the interest based on how much you want *@
             float min_interest = (float) MinLinkedInterest;
-            float max_interest = (float) MinLinkedInterest;
+            float max_interest = (float) MaxLinkedInterest;
             @* R1000 interest is 29 and R25000 interest is 20 *@
             Applicant.LinkedInterest = -(Applicant.RequestedAmount)*((max_interest - min_interest) / (MaxLoanAmount - MinLoanAmount)) + max_interest;
             @* Cralculate the interest based on period *@
