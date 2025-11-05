@@ -1,0 +1,23 @@
+
+<div class="menu-bar d-flex align-items-center justify-content-between gap-4 m-1 shadow-sm bg-light rounded-pill">
+    @foreach (var item in MenuItems)
+    {
+        <NavLink class="menu-item d-flex align-items-center justify-content-center gap-3 p-3 w-100 py-1 rounded-pill"
+                href="#" style="@GetActiveMenu(item)">
+            <Icon Name="@item.iconName" />
+            <span class="fw-bold">@item.Name</span>
+        </NavLink>
+    }
+</div>
+
+@code{
+    [Parameter] 
+    public MenuItem[] MenuItems{get; set;} = [];
+    
+    string GetActiveMenu(MenuItem menu){
+        string className = "color: #555; text-decoration: none; transition: all 0.2s ease-in-out;";
+        if(menu.Active) className += "background-color: #007bff; color: #fff; font-size: 1.3rem;";
+        return className;
+    }
+
+}

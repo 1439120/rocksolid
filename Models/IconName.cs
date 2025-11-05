@@ -10,4 +10,8 @@
         ShieldCheck,
         HouseDoor,
         CarFront,
+        Wallet,
+        TextLeft,
+        CalendarDate,
+        PiggyBank,
     }

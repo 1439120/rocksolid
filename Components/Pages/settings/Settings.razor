@@ -1,0 +1,15 @@
+@page "/settings"
+@using BlazorApp.Components.Reusbale
+
+
+<HorizontalBar MenuItems="menuItems"/>
+
+@code{
+    public MenuItem[] menuItems = [
+        new MenuItem{Name="Loan Offers", iconName=IconName.Wallet, Active=true},
+        new MenuItem{Name="Loan Types", iconName=IconName.TextLeft},
+        new MenuItem{Name="Loan Period", iconName=IconName.CalendarDate},
+        new MenuItem{Name="Interest Rates", iconName=IconName.PiggyBank},
+    ];
+    
+}
