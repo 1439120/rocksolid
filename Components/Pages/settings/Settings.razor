@@ -1,15 +1,57 @@
+@rendermode InteractiveServer
 @page "/settings"
 @using BlazorApp.Components.Reusbale
 
 
-<HorizontalBar MenuItems="menuItems"/>
+<HorizontalBar MenuItems="menuItems"  OnMenuSelected="HandleMenuSelected"/>
+
+<div>
+    <div class="mt-4 p-3">
+        @if (activeMenuItem is not null)
+        {
+            @switch (activeMenuItem.Name)
+            {
+                case "Loan Offers":
+                    <LoanOffersPage />
+                    break;
+
+                @* case "Loan Types":
+                    <LoanTypesPage />
+                    break; *@
+
+                case "Loan Period":
+                    <InstallmentPeriodPage />
+                    break;
+
+                @* case "Interest Rates":
+                    <InterestRatesPage />
+                    break; *@
+            }
+        }
+
+    </div>
+</div>
 
 @code{
-    public MenuItem[] menuItems = [
+    private List<MenuItem> menuItems = new()
+    {
         new MenuItem{Name="Loan Offers", iconName=IconName.Wallet, Active=true},
         new MenuItem{Name="Loan Types", iconName=IconName.TextLeft},
         new MenuItem{Name="Loan Period", iconName=IconName.CalendarDate},
         new MenuItem{Name="Interest Rates", iconName=IconName.PiggyBank},
-    ];
+    };
+
+    private MenuItem? activeMenuItem;
+
+    protected override void OnInitialized()
+    {
+        activeMenuItem = menuItems.FirstOrDefault(i => i.Active);
+    }
+
+    private void HandleMenuSelected(MenuItem selected)
+    {
+        activeMenuItem = selected;
+        StateHasChanged(); // 👈 this re-renders the parent
+    }
     
 }
