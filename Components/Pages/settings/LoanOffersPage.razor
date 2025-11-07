@@ -6,8 +6,17 @@
     </div>
 
     <div class="d-flex flex-wrap m-3 gap-4 w-100">
-        <EditableCard/>
-        <EditableCard/>
-        <EditableCard/>
+        <EditableCard Title="🏠 Home Loan" MinLinkedInterest="10" MaxLinkedInterest="22" MaxLoanAmount="2000000"
+            Tags="homeLoanTags"/>
+        <EditableCard Title="🚗 Car Loan" MinLinkedInterest="11" MaxLinkedInterest="24" MaxLoanAmount="700000"
+            Tags="carLoanTags"/>
+        <EditableCard Title="👨‍💼 Personal Loan" MinLinkedInterest="18" MaxLinkedInterest="26" MaxLoanAmount="25000"
+            Tags="personalLoanTags"/>
     </div>
 </div>
+
+@code{
+    public string[] homeLoanTags = ["Home Loan"];
+    public string[] carLoanTags = ["Car Loan"];
+    public string[] personalLoanTags = ["Personal Loan"];
+}

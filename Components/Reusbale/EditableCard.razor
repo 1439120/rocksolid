@@ -1,15 +1,19 @@
+@using System.Security.Cryptography
+
 <div class="card shadow-sm border-0 rounded-4 m-3" style="width: 360px;">
   <div class="card-body p-4">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-start mb-3">
       <div>
-        <h5 class="fw-bold mb-1 text-primary">🏠 Home Loan</h5>
-        <small class="text-muted">Prime Interest: 15% • Up to 28%</small>
+        <h5 class="fw-bold mb-1 text-primary">@Title</h5>
+        <small class="text-muted">Prime Interest: @MinLinkedInterest% • Up to @MaxLinkedInterest%</small>
       </div>
-      <span class="badge bg-light text-dark border">Up to <strong>R15,000</strong></span>
+      <span class="badge bg-light text-dark border">Up to <strong>R @MaxLoanAmount.ToString("N2")</strong></span>
     </div>
 
-    <p class="fs-6 px-3 rounded-4 text-white" style="width: fit-content; background-color: rgb(2, 161, 82);">Home Loan</p>
+    @foreach(var tag in Tags){
+        <p class="fs-6 px-3 rounded-4 text-white" style="@RandomColors()">@tag</p>
+    }
 
     <!-- Divider -->
     <hr class="my-3"/>
@@ -25,3 +29,19 @@
     </div>
   </div>
 </div>
+
+@code{
+    [Parameter] public string? Title{get; set;}
+    [Parameter] public float MinLinkedInterest{get; set;}
+    [Parameter] public float MaxLinkedInterest{get; set;}
+    [Parameter] public float MaxLoanAmount{get; set;}
+    [Parameter] public string[] Tags{get; set;} = [];
+
+    string RandomColors(){
+        var styling = "width: fit-content;";
+        string[] colors = ["background-color: rgb(2, 161, 82);","background-color: rgb(60, 2, 161);","background-color: rgb(5, 140, 218);",
+                            "background-color: rgb(130, 6, 39);","background-color: rgb(74, 6, 130);","background-color: rgb(176, 77, 47);"];
+        styling += colors[RandomNumberGenerator.GetInt32(colors.Length)];
+        return styling;
+    }
+}    
