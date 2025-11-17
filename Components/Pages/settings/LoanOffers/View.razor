@@ -1,0 +1,102 @@
+@page "/loan-offers"
+@page "/loan-offers/{id}"
+@using BlazorApp.Models
+@inject NavigationManager navManager
+
+<div class="container py-4">
+    <EditForm method="post" Model="LoanOffer" OnValidSubmit="UpdateLoanOffer" FormName="create" Enhance>
+        <DataAnnotationsValidator />
+        <ValidationSummary class="text-danger mb-3" />
+
+        <div class="card shadow-sm p-4 rounded-4">
+
+            <h4 class="mb-4 fw-bold text-primary">Loan Offer Details</h4>
+
+            <div class="row g-4">
+
+                <!-- Title -->
+                <div class="col-md-4">
+                    <div class="form-floating">
+                        <input class="form-control"  id="title" value="@LoanOffer.Name" />
+                        <label for="title">Title</label>
+                    </div>
+                    <ValidationMessage For="()=> LoanOffer.Name" class="text-danger small" />
+                </div>
+
+                <!-- Min Amount -->
+                <div class="col-md-4">
+                    <div class="form-floating">
+                        <input class="form-control"  type="number" id="minAmount" value="@LoanOffer.MinimumAmount" />
+                        <label for="minAmount">Minimum Amount</label>
+                    </div>
+                    <ValidationMessage For="()=> LoanOffer.MinimumAmount" class="text-danger small" />
+                </div>
+
+                <!-- Max Amount -->
+                <div class="col-md-4">
+                    <div class="form-floating">
+                        <input class="form-control"  id="maxAmount" value="@LoanOffer.MaximumAmount" />
+                        <label for="maxAmount">Maximum Amount</label>
+                    </div>
+                    <ValidationMessage For="()=> LoanOffer.MaximumAmount" class="text-danger small" />
+                </div>
+
+                <!-- Min Interest -->
+                <div class="col-md-4">
+                    <div class="form-floating">
+                        <input class="form-control"  type="number" id="minInterest" value="@LoanOffer.MinimumInterest" />
+                        <label for="minInterest">Minimum Interest</label>
+                    </div>
+                    <ValidationMessage For="()=> LoanOffer.MinimumInterest" class="text-danger small" />
+                </div>
+
+                <!-- Max Interest -->
+                <div class="col-md-4">
+                    <div class="form-floating">
+                        <input class="form-control"  id="maxInterest" value="@LoanOffer.MaximumInterest" />
+                        <label for="maxInterest">Maximum Interest</label>
+                    </div>
+                    <ValidationMessage For="()=> LoanOffer.MaximumInterest" class="text-danger small" />
+                </div>
+                <!-- Loan Type -->
+                <div class="col-md-4">
+                    <div class="form-floating">
+                        @* <input class="form-control"  id="maxInterest" value="@LoanOffer.MaximumInterest" /> *@
+                        <select class="form-control"  id="loanType" value="@LoanOffer.MaximumInterest">
+                            
+                            @foreach(var loantype in Enum.GetValues<LoanTypes>()){
+                                @if(loantype != LoanTypes.None){
+                                    <option value="@loantype">@loantype</option>
+                                }
+                            }
+                            @* <option></option> *@
+                        </select>
+                        <label for="maxInterest">Loan Type</label>
+                    </div>
+                    <ValidationMessage For="()=> LoanOffer.MaximumInterest" class="text-danger small" />
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                @* <button type="button" class="btn btn-danger px-5 py-2">
+                    Back
+                </button> *@
+                <NavLink class="btn btn-danger" href="/settings">
+                    Back
+                </NavLink>
+                <button type="submit" class="btn btn-primary px-5 py-2">
+                    Update
+                </button>
+            </div>
+
+        </div>
+    </EditForm>
+</div>
+
+@code{
+    public LoanOffer LoanOffer {get; set;} = new ();
+    [Parameter] public string Id{get; set;} = string.Empty;
+    public void UpdateLoanOffer(){
+        navManager.NavigateTo("/settings");
+    }
+}
