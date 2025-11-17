@@ -1,10 +1,12 @@
 @page "/loan-offers"
-@page "/loan-offers/{id}"
+@page "/loan-offers/{Id}"
+@rendermode InteractiveServer
 @using BlazorApp.Models
 @inject NavigationManager navManager
+@inject LoanOffersServices LoanOffersServices
 
 <div class="container py-4">
-    <EditForm method="post" Model="LoanOffer" OnValidSubmit="UpdateLoanOffer" FormName="create" Enhance>
+    <EditForm method="post" Model="loanOffer" OnValidSubmit="UpdateLoanOffer" FormName="create" Enhance>
         <DataAnnotationsValidator />
         <ValidationSummary class="text-danger mb-3" />
 
@@ -17,70 +19,63 @@
                 <!-- Title -->
                 <div class="col-md-4">
                     <div class="form-floating">
-                        <input class="form-control"  id="title" value="@LoanOffer.Name" />
+                        <InputText class="form-control"  id="title" @bind-Value="loanOffer.Name" />
                         <label for="title">Title</label>
                     </div>
-                    <ValidationMessage For="()=> LoanOffer.Name" class="text-danger small" />
+                    <ValidationMessage For="()=> loanOffer.Name" class="text-danger small" />
                 </div>
 
                 <!-- Min Amount -->
                 <div class="col-md-4">
                     <div class="form-floating">
-                        <input class="form-control"  type="number" id="minAmount" value="@LoanOffer.MinimumAmount" />
+                        <InputNumber class="form-control"  type="number" id="minAmount" @bind-Value="loanOffer.MinimumAmount" />
                         <label for="minAmount">Minimum Amount</label>
                     </div>
-                    <ValidationMessage For="()=> LoanOffer.MinimumAmount" class="text-danger small" />
+                    <ValidationMessage For="()=> loanOffer.MinimumAmount" class="text-danger small" />
                 </div>
 
                 <!-- Max Amount -->
                 <div class="col-md-4">
                     <div class="form-floating">
-                        <input class="form-control"  id="maxAmount" value="@LoanOffer.MaximumAmount" />
+                        <InputNumber class="form-control"  id="maxAmount" @bind-Value="loanOffer.MaximumAmount" />
                         <label for="maxAmount">Maximum Amount</label>
                     </div>
-                    <ValidationMessage For="()=> LoanOffer.MaximumAmount" class="text-danger small" />
+                    <ValidationMessage For="()=> loanOffer.MaximumAmount" class="text-danger small" />
                 </div>
 
                 <!-- Min Interest -->
                 <div class="col-md-4">
                     <div class="form-floating">
-                        <input class="form-control"  type="number" id="minInterest" value="@LoanOffer.MinimumInterest" />
+                        <InputNumber class="form-control"  type="number" id="minInterest" @bind-Value="loanOffer.MinimumInterest" />
                         <label for="minInterest">Minimum Interest</label>
                     </div>
-                    <ValidationMessage For="()=> LoanOffer.MinimumInterest" class="text-danger small" />
+                    <ValidationMessage For="()=> loanOffer.MinimumInterest" class="text-danger small" />
                 </div>
 
                 <!-- Max Interest -->
                 <div class="col-md-4">
                     <div class="form-floating">
-                        <input class="form-control"  id="maxInterest" value="@LoanOffer.MaximumInterest" />
+                        <InputNumber class="form-control"  id="maxInterest" @bind-Value="loanOffer.MaximumInterest" />
                         <label for="maxInterest">Maximum Interest</label>
                     </div>
-                    <ValidationMessage For="()=> LoanOffer.MaximumInterest" class="text-danger small" />
+                    <ValidationMessage For="()=> loanOffer.MaximumInterest" class="text-danger small" />
                 </div>
                 <!-- Loan Type -->
-                <div class="col-md-4">
+                 <div class="col-md-4">
                     <div class="form-floating">
-                        @* <input class="form-control"  id="maxInterest" value="@LoanOffer.MaximumInterest" /> *@
-                        <select class="form-control"  id="loanType" value="@LoanOffer.MaximumInterest">
-                            
+                        <select class="form-control"  id="loanType" @bind="@loanOffer.LoanType">
                             @foreach(var loantype in Enum.GetValues<LoanTypes>()){
                                 @if(loantype != LoanTypes.None){
                                     <option value="@loantype">@loantype</option>
                                 }
                             }
-                            @* <option></option> *@
                         </select>
                         <label for="maxInterest">Loan Type</label>
                     </div>
-                    <ValidationMessage For="()=> LoanOffer.MaximumInterest" class="text-danger small" />
                 </div>
             </div>
 
             <div class="text-center mt-4">
-                @* <button type="button" class="btn btn-danger px-5 py-2">
-                    Back
-                </button> *@
                 <NavLink class="btn btn-danger" href="/settings">
                     Back
                 </NavLink>
@@ -94,9 +89,30 @@
 </div>
 
 @code{
-    public LoanOffer LoanOffer {get; set;} = new ();
+    public LoanOffer loanOffer {get; set;} = new();
     [Parameter] public string Id{get; set;} = string.Empty;
-    public void UpdateLoanOffer(){
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var offer = await LoanOffersServices.Find(Id); // load from backend
+        loanOffer = offer.FirstOrDefault() ?? new LoanOffer();
+    }
+    async public Task UpdateLoanOffer(){
+        try{
+            Console.WriteLine("Submitting");
+            if(string.IsNullOrEmpty(Id))
+                await LoanOffersServices.Add(loanOffer);
+            else{
+                await LoanOffersServices.UpdateLoanOffer(loanOffer);
+            }
+            Console.WriteLine("Submitted successfully");
+        }catch(Exception err){
+            Console.WriteLine($"there was an error {err}");
+        }
+        
         navManager.NavigateTo("/settings");
     }
+
+
 }

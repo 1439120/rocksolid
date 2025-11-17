@@ -7,7 +7,7 @@ namespace BlazorApp.Models
     public class LoanOffer{
         [FirestoreProperty]
         public string Id { get; set; } = Guid.NewGuid().ToString();
-        [FirestoreProperty, Required(ErrorMessage = "User Name is required.")]
+        [FirestoreProperty, Required(ErrorMessage = "Please write the title of the loan.")]
         public string Name {get;set;} = string.Empty;
         [FirestoreProperty]
         public float MinimumAmount{get; set;}

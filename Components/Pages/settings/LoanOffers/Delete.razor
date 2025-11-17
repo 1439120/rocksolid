@@ -1,0 +1,39 @@
+@page "/loan-offers/delete/{Id}"
+@inject LoanOffersServices LoanOffersServices
+@inject NavigationManager NavManager
+
+<div class="d-flex flex-column align-items-center justify-content-center vh-100 bg-light">
+    <div class="spinner-border text-danger mb-4" style="width: 4rem; height: 4rem;" role="status">
+        <span class="visually-hidden">Deleting...</span>
+    </div>
+    <h3 class="text-danger">Deleting loan offer...</h3>
+    <p>Please wait while we remove it permanently.</p>
+</div>
+
+@code {
+    [Parameter] public string? Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // This runs immediately when the page loads
+        // The markup above is rendered RIGHT NOW → user sees "Deleting..." instantly
+
+        if (string.IsNullOrEmpty(Id))
+        {
+            NavManager.NavigateTo("/loan-offers");
+            return;
+        }
+
+        // Start the delete operation
+        var deleteTask = LoanOffersServices.DeleteAsync(Id);
+
+        // Force the UI to stay for at least 5 seconds (user sees spinner the whole time)
+        var minimumDelay = Task.Delay(TimeSpan.FromSeconds(5));
+
+        // Wait for both the delete AND the 5-second minimum
+        await Task.WhenAll(deleteTask, minimumDelay);
+
+        // Now go back – this happens after at least 5 seconds
+        NavManager.NavigateTo("/settings");
+    }
+}
