@@ -5,6 +5,8 @@ namespace BlazorApp.Models
 {
     [FirestoreData]
     public class LoanOffersTags{
+        [FirestoreProperty]
+        public string Id { get; set; } = Guid.NewGuid().ToString();
         [FirestoreProperty, Required]
         public string Name {get;set;} = string.Empty;
         [FirestoreProperty, Required]

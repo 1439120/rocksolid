@@ -30,6 +30,7 @@ builder.Services.AddScoped<ClientDatabaseService>(); // Your other services
 builder.Services.AddScoped<ApplicationService>(); // Your other services
 builder.Services.AddScoped<InstallmentService>(); // Your other services
 builder.Services.AddScoped<LoanOffersServices>(); // Your other services
+builder.Services.AddScoped<LoanOfferTagsServices>(); // Your other services
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

@@ -1,36 +1,29 @@
 @using BlazorApp.Components.Reusbale
 @using BlazorApp.Models
 @inject LoanOffersServices LoanOffersServices
-
+@inject LoanOfferTagsServices LoanTagsServices
 
 <div>
     <div class="d-flex justify-content-between m-3">
         <h3>Loan Offers Management</h3>
-        @* <button class="btn btn-primary">+ Add</button> *@
         <NavLink class="btn btn-primary" href="/loan-offers">+ Add</NavLink>
     </div>
 
     <div class="d-flex flex-wrap m-3 gap-4 w-100">
-        @* <EditableCard Title="🏠 Home Loan" MinLinkedInterest="10" MaxLinkedInterest="22" MaxLoanAmount="2000000"
-            Tags="homeLoanTags" EditLink="/loan-offers/1"/>
-        <EditableCard Title="🚗 Car Loan" MinLinkedInterest="11" MaxLinkedInterest="24" MaxLoanAmount="700000"
-            Tags="carLoanTags" EditLink="/loan-offers/2"/>
-        <EditableCard Title="👨‍💼 Personal Loan" MinLinkedInterest="18" MaxLinkedInterest="26" MaxLoanAmount="25000"
-            Tags="personalLoanTags" EditLink="/loan-offers/3"/> *@
+        @if(loanOffers.Count == 0){
+            <p>Loading..........</p>
+        }
         
         @foreach(var offer in loanOffers){
             <EditableCard Title="@GetLoanTitle(offer)" MinLinkedInterest="@offer.MinimumInterest" MaxLinkedInterest="@offer.MaximumInterest"
-            MaxLoanAmount="@offer.MaximumAmount" EditLink="@("/loan-offers/"+offer.Id)" DeleteLink="@("/loan-offers/delete/"+offer.Id)"/>
+            MaxLoanAmount="@offer.MaximumAmount" EditLink="@("/loan-offers/"+offer.Id)" DeleteLink="@("/loan-offers/delete/"+offer.Id)"
+            Tags="@offer.loanOffersTags"/>
         }
     </div>
 </div>
 
 @code{
     public List<LoanOffer> loanOffers = [];
-    public string[] homeLoanTags = ["Home Loan"];
-    public string[] carLoanTags = ["Car Loan"];
-    public string[] personalLoanTags = ["Personal Loan"];
-
     private string GetLoanTitle(LoanOffer loanOffer){
         string icon = "";
         switch(loanOffer.LoanType){
@@ -53,6 +46,10 @@
         try{
             Console.WriteLine("Getting the loan offers");
             loanOffers = await LoanOffersServices.GetAllLoanOffersAsync(); // load from backend
+            Console.WriteLine("Getting corresponding tags");
+            foreach(var offer in loanOffers){
+                offer.loanOffersTags = await GetTags(offer);
+            }
             Console.WriteLine("Query ran successfully");
         }
         catch(Exception err){
@@ -70,5 +67,9 @@
             Console.WriteLine($"There was an error: {err}");
         }
         
+    }
+    async private Task<List<LoanOffersTags>> GetTags(LoanOffer loanOffer){
+        var tags = await LoanTagsServices.GetTags(loanOffer.Id);
+        return tags;
     }
 }

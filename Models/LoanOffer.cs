@@ -23,6 +23,8 @@ namespace BlazorApp.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         [FirestoreProperty]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public List<LoanOffersTags> loanOffersTags{get; set;} = [];
+
     }
 
 

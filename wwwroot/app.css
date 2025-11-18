@@ -178,3 +178,34 @@ box-shadow: 0 1px 0 0 #0d6efd;
 }
 
   /* -------------------------------------------------- */
+
+  .tag-item {
+    background-color: rgb(75, 77, 76);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.remove-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0;
+}
+
+.circle-plus {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    font-size: 24px;
+    padding: 0;
+    background-color: rgb(26, 105, 241);
+    color: white;
+}

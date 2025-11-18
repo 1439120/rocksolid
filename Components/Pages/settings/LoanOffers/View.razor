@@ -4,6 +4,7 @@
 @using BlazorApp.Models
 @inject NavigationManager navManager
 @inject LoanOffersServices LoanOffersServices
+@inject LoanOfferTagsServices LoanTagsServices
 
 <div class="container py-4">
     <EditForm method="post" Model="loanOffer" OnValidSubmit="UpdateLoanOffer" FormName="create" Enhance>
@@ -73,6 +74,31 @@
                         <label for="maxInterest">Loan Type</label>
                     </div>
                 </div>
+
+            </div>
+
+            <div class="row pt-2 mt-2">
+                <div class="col-md-5">
+                    <div class="form-floating">
+                        <input class="form-control" id="tagInput" @bind="currentTag" />
+                        <label for="tagInput">Add Tag</label>
+                    </div>
+                </div>
+
+                <div class="col-md-2 d-flex align-items-center">
+                    <button class="btn circle-plus" type="button" @onclick="AddTag">+</button>
+                </div>
+            </div>
+                        
+            <!-- Tag List -->
+            <div class="d-flex gap-2 flex-wrap mt-3">
+                @foreach (var tag in Tags)
+                {
+                    <span class="tag-item">
+                        @tag.Name
+                        <button class="remove-btn" type="button" @onclick="() => RemoveTag(tag)">×</button>
+                    </span>
+                }
             </div>
 
             <div class="text-center mt-4">
@@ -91,12 +117,19 @@
 @code{
     public LoanOffer loanOffer {get; set;} = new();
     [Parameter] public string Id{get; set;} = string.Empty;
-
+    private string currentTag = "";
+    public List<LoanOffersTags> Tags { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
         var offer = await LoanOffersServices.Find(Id); // load from backend
         loanOffer = offer.FirstOrDefault() ?? new LoanOffer();
+        
+        if(!string.IsNullOrWhiteSpace(loanOffer.Id))
+        {
+            await UpdateCurrentTags();
+        }
+
     }
     async public Task UpdateLoanOffer(){
         try{
@@ -112,6 +145,36 @@
         }
         
         navManager.NavigateTo("/settings");
+    }
+
+    async private Task AddTag()
+    {
+        Console.WriteLine("Adding a tag");
+        if (!string.IsNullOrWhiteSpace(currentTag))
+        {
+            @* Tags.Add(currentTag.Trim()); *@
+            Console.WriteLine("Starting....");
+            await LoanTagsServices.Add(new LoanOffersTags{
+                Name= currentTag,
+                LoanOfferId= loanOffer.Id
+            });
+            currentTag = "";
+            Console.WriteLine("Added tag successfully");
+            await UpdateCurrentTags();;
+        }
+    }
+
+    async private Task RemoveTag(LoanOffersTags tag)
+    {
+        @* Tags.Remove(tag); *@
+        await LoanTagsServices.DeleteAsync(tag.Id);
+        Console.WriteLine("Tag removed successfully");
+        await UpdateCurrentTags();;
+    }
+
+    async private Task UpdateCurrentTags(){
+        var tags = await LoanTagsServices.GetTags(loanOffer.Id);
+        Tags = tags;
     }
 
 
