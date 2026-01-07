@@ -44,8 +44,9 @@ namespace BlazorApp.Services
         public async Task<List<Installment>> GetInstallments(string ApplicantId)
         {
             Query query = _firestoreDb.Collection(CollectionName)
-                .WhereEqualTo("ApplicantId", ApplicantId);
-                // .OrderBy("Surname");
+                .WhereEqualTo("ApplicantId", ApplicantId)
+                // .OrderByDescending("PaymentDate");
+                .OrderBy("PaymentDate");
                 
             QuerySnapshot querySnapshot = await query.GetSnapshotAsync();
             
