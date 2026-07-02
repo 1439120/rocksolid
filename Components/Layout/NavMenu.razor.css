@@ -43,51 +43,95 @@
 }
 
 /* ---------- Navigation ---------- */
-
-nav {
+.sidebar-nav {
     display: flex;
     flex-direction: column;
-    gap: .35rem;
+    gap: .6rem; /* Comfortable spacing between bordered items */
+    padding: .75rem;
 }
 
-nav a {
+/* Sub-section headings */
+.nav-section-title {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #8fa0b5;
+    font-weight: 700;
+    margin: 1.5rem 0 0.6rem 1rem;
+    user-select: none;
+}
+
+/* Main Navigation Items (With Borders Around Them) */
+.sidebar-nav .nav-item {
     display: flex;
+    align-items: center; /* Perfect vertical alignment */
+    gap: 1.1rem;
+    color: #64748b;
+    
+    /* REMOVE ALL UNDERLINES */
+    text-decoration: none !important; 
+    
+    padding: .95rem 1.1rem;
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: 1.1rem;
+    position: relative;
+    
+    /* CLEAR BORDER ENCLOSING EACH MENU ITEM */
+    /* border: 1px solid #e2e8f0;  */
+    background-color: #ffffff; /* White card layout look */
+    
+    transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Ensure child text stays clean of underlines */
+.sidebar-nav .nav-item span {
+    text-decoration: none !important;
+    display: inline-block;
+    line-height: 1; /* Aligns text base beautifully with icon boxes */
+}
+
+/* Icon layout settings (Isolated Framework) */
+.sidebar-nav .nav-item i {
+    font-size: 1.45rem;
+    width: 28px;
+    height: 28px;
+    
+    /* Flexbox inside the icon wrapper forces absolute center alignment */
+    display: inline-flex;
     align-items: center;
-    gap: .9rem;
-
-    color: #556677;
-    text-decoration: none;
-
-    padding: .9rem 1rem;
-
-    border-radius: 12px;
-
-    transition: all .25s;
+    justify-content: center;
+    
+    color: #94a3b8;
+    text-decoration: none !important;
+    transition: transform .2s ease, color .2s ease;
 }
 
-nav a i {
-    font-size: 1.15rem;
-    width: 22px;
-    text-align: center;
+/* Modern Hover Action */
+.sidebar-nav .nav-item:hover {
+    background-color: #f8fafc;
+    color: #0f172a;
+    border-color: #cbd5e1; /* Darkens border on hover */
+    text-decoration: none !important;
 }
 
-/* Hover */
-
-nav a:hover {
-    background: #edf5fb;
+.sidebar-nav .nav-item:hover i {
     color: #1e3c72;
+    transform: scale(1.08);
 }
 
-/* Active */
-
-nav a.active {
-    background: linear-gradient(90deg,#1e3c72,#2a6f97);
-    color: white;
+/* Upgraded Active Status */
+.sidebar-nav .nav-item.active {
+    background: linear-gradient(135deg, #1e3c72, #2a6f97);
+    color: #ffffff !important;
     font-weight: 600;
-
-    box-shadow: 0 8px 20px rgba(30,60,114,.25);
+    border-color: transparent; /* Seamless blend */
+    box-shadow: 0 4px 12px rgba(30, 60, 114, 0.2);
+    text-decoration: none !important;
 }
 
-nav a.active i {
-    color: white;
+/* Match the exact active icon treatment */
+.sidebar-nav .nav-item.active i {
+    color: #ffffff !important;
+    text-decoration: none !important;
 }

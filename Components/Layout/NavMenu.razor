@@ -9,45 +9,46 @@
         </div>
     </div>
 
-    <nav>
-
-        <NavLink href="/home" Match="NavLinkMatch.All">
+    <nav class="sidebar-nav">
+        <!-- General Section -->
+        <NavLink href="/home" Match="NavLinkMatch.All" class="nav-item">
             <i class="bi bi-grid-1x2-fill"></i>
             <span>Dashboard</span>
         </NavLink>
 
+        <!-- Services Section -->
         <AuthorizeView Roles="Administrator,User">
             <Authorized>
-
-                <NavLink href="/loans">
+                <div class="nav-section-title">Financing</div>
+                
+                <NavLink href="/loans" class="nav-item">
                     <i class="bi bi-cash-stack"></i>
                     <span>Loans</span>
                 </NavLink>
 
-                <NavLink href="/applications">
+                <NavLink href="/applications" class="nav-item">
                     <i class="bi bi-file-earmark-plus"></i>
                     <span>Applications</span>
                 </NavLink>
-
             </Authorized>
         </AuthorizeView>
 
+        <!-- Management Section -->
         <AuthorizeView Roles="Administrator">
             <Authorized>
+                <div class="nav-section-title">Management</div>
 
-                <NavLink href="/database">
+                <NavLink href="/database" class="nav-item">
                     <i class="bi bi-database-fill"></i>
                     <span>Database</span>
                 </NavLink>
 
-                <NavLink href="/settings">
+                <NavLink href="/settings" class="nav-item">
                     <i class="bi bi-gear-fill"></i>
                     <span>Settings</span>
                 </NavLink>
-
             </Authorized>
         </AuthorizeView>
-
     </nav>
 
 </div>
