@@ -1,0 +1,198 @@
+.login-page {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    background: linear-gradient(135deg,#eef4fb,#f8fbfd);
+
+    padding: 40px;
+}
+
+.login-card {
+
+    width: 430px;
+
+    background: white;
+
+    border-radius: 24px;
+
+    padding: 45px;
+
+    box-shadow: 0 15px 45px rgba(0,0,0,.08);
+}
+
+/* Header */
+
+.login-header {
+
+    text-align: center;
+
+    margin-bottom: 35px;
+}
+
+.logo {
+
+    width: 80px;
+
+    height: 80px;
+
+    border-radius: 22px;
+
+    background: #e6edf5;
+
+    color: #1e3c72;
+
+    margin: auto;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 2.3rem;
+
+    margin-bottom: 20px;
+}
+
+.login-header h2 {
+
+    font-weight: 700;
+
+    color: #0b1e33;
+}
+
+.login-header span {
+
+    color: #2a6f97;
+}
+
+.login-header p {
+
+    color: #8895a7;
+}
+
+/* Inputs */
+
+.input-group-custom {
+
+    margin-bottom: 22px;
+}
+
+.input-group-custom label {
+
+    margin-bottom: 8px;
+
+    font-weight: 600;
+}
+
+.input-box {
+
+    display: flex;
+
+    align-items: center;
+
+    background: #f7f9fc;
+
+    border: 1px solid #dde5ef;
+
+    border-radius: 14px;
+
+    padding: 0 15px;
+}
+
+.input-box i {
+
+    color: #2a6f97;
+
+    font-size: 1.1rem;
+}
+
+.input-box .form-control {
+
+    border: none;
+
+    background: transparent;
+
+    box-shadow: none;
+
+    height: 52px;
+}
+
+/* Options */
+
+.options {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 25px;
+
+    font-size: .95rem;
+}
+
+.options a {
+
+    text-decoration: none;
+}
+
+/* Button */
+
+.login-btn {
+
+    width: 100%;
+
+    border: none;
+
+    background: linear-gradient(90deg,#1e3c72,#2a6f97);
+
+    color: white;
+
+    border-radius: 14px;
+
+    height: 54px;
+
+    font-weight: 600;
+
+    transition: .25s;
+}
+
+.login-btn:hover:not(:disabled) {
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 12px 25px rgba(30,60,114,.25);
+}
+
+.login-btn:disabled {
+
+    opacity: .7;
+}
+
+/* Register */
+
+.register {
+
+    margin-top: 25px;
+
+    text-align: center;
+
+    color: #6b7788;
+}
+
+.register a {
+
+    text-decoration: none;
+
+    font-weight: 600;
+
+    margin-left: 5px;
+}

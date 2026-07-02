@@ -8,7 +8,7 @@
 
     <div class="main">
 
-        <header class="topbar">
+        @* <header class="topbar">
 
             <div class="page-title">
                 <h3>RockSolid</h3>
@@ -45,11 +45,28 @@
 
             </div>
 
-        </header>
+        </header> *@
 
         <main class="page-content">
 
-            @Body
+            
+            <div class="main-layout">
+                <!-- header -->
+                <div class="top-bar">
+                    <div class="brand">
+                        <i class="fas fa-gem"></i>
+                        <h1>Rock<span>Solid</span></h1>
+                    </div>
+                    <div class="auth-buttons">
+                        <span class="avatar"><i class="fas fa-user-circle"></i></span>
+                        <span style="font-weight:500; color:#1e3c72;">Alex</span>
+                        <button class="btn btn-logout" disabled><i class="fas fa-sign-out-alt"></i> Logout</button>
+                        <button class="btn btn-primary" disabled><i class="fas fa-lock"></i> Login</button>
+                    </div>
+                </div>
+                
+                @Body
+            </div>
 
         </main>
 
