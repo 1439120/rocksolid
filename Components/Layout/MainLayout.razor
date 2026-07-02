@@ -1,33 +1,63 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
+<div class="layout">
+
+    <aside class="sidebar">
         <NavMenu />
+    </aside>
+
+    <div class="main">
+
+        <header class="topbar">
+
+            <div class="page-title">
+                <h3>RockSolid</h3>
+            </div>
+
+            <div class="top-actions">
+
+                <a class="about" href="https://learn.microsoft.com/aspnet/core/" target="_blank">
+                    <i class="bi bi-question-circle"></i>
+                    About
+                </a>
+
+                <AuthorizeView>
+
+                    <NotAuthorized>
+
+                        <a class="login" href="/login">
+                            <i class="bi bi-box-arrow-in-right"></i>
+                            Login
+                        </a>
+
+                    </NotAuthorized>
+
+                    <Authorized>
+
+                        <a class="logout" href="/logout">
+                            <i class="bi bi-box-arrow-right"></i>
+                            Logout
+                        </a>
+
+                    </Authorized>
+
+                </AuthorizeView>
+
+            </div>
+
+        </header>
+
+        <main class="page-content">
+
+            @Body
+
+        </main>
+
     </div>
 
-    <main>
-        <div class="top-row px-4">
-            <Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
-                <NotAuthorized>
-                    <a href="/login" target="_blank">Login</a>
-                    @* <a href="/register" target="_blank">Register</a> *@
-                </NotAuthorized>
-                <Authorized>
-                    <a href="/logout" class="nav-link text-danger">Logout</a>
-                </Authorized>
-            </Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
-
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4" style="background-color: #fff6ec;">
-            @Body
-        </article>
-    </main>
 </div>
 
-<div id="blazor-error-ui" data-nosnippet>
+<div id="blazor-error-ui">
     An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
+    <a href=".">Reload</a>
 </div>

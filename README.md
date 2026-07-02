@@ -49,3 +49,8 @@ It automates the loan lifecycle — from application and approval to repayment t
 ```bash
 git clone https://github.com/1439120/rocksolid.git
 cd rocksolid
+dotnet watch
+
+###  Test user
+email: thandi@email.com
+password: 123456

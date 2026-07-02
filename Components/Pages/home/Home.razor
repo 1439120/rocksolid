@@ -1,0 +1,116 @@
+@page "/home"
+<PageTitle>Home</PageTitle>
+
+<div class="dashboard">
+    <!-- header -->
+    <div class="top-bar">
+        <div class="brand">
+            <i class="fas fa-gem"></i>
+            <h1>Rock<span>Solid</span></h1>
+        </div>
+        <div class="auth-buttons">
+            <span class="avatar"><i class="fas fa-user-circle"></i></span>
+            <span style="font-weight:500; color:#1e3c72;">Alex</span>
+            <button class="btn btn-logout" disabled><i class="fas fa-sign-out-alt"></i> Logout</button>
+            <button class="btn btn-primary" disabled><i class="fas fa-lock"></i> Login</button>
+        </div>
+    </div>
+
+    <!-- welcome + stats -->
+    <div class="welcome-stats">
+        <div class="welcome-text">
+            <h2>👋 Welcome back, Alex</h2>
+            <p>Your trusted partner for smart lending.</p>
+        </div>
+        <div class="stats-group">
+            <div class="stat-item">
+                <i class="fas fa-hand-holding-usd"></i>
+                <div><span class="stat-number">4.2k</span> <span class="stat-label">loans funded</span></div>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-star"></i>
+                <div><span class="stat-number">98%</span> <span class="stat-label">satisfaction</span></div>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-clock"></i>
+                <div><span class="stat-number">24h</span> <span class="stat-label">avg. approval</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- loan offers -->
+    <div class="section-title">
+        <i class="fas fa-hand-holding-heart"></i> Loan offers
+    </div>
+    <div class="loan-grid">
+        <!-- Personal -->
+        <div class="loan-card">
+            <div class="loan-icon"><i class="fas fa-user"></i></div>
+            <h3>Personal Loan</h3>
+            <div class="loan-desc">Flexible amounts for any need.</div>
+            <div class="loan-meta">
+                <span class="loan-rate">from 4.9% APR</span>
+                <button class="btn-apply" disabled><i class="fas fa-paper-plane"></i> Apply</button>
+            </div>
+        </div>
+        <!-- House -->
+        <div class="loan-card">
+            <div class="loan-icon"><i class="fas fa-home"></i></div>
+            <h3>House Loan</h3>
+            <div class="loan-desc">Mortgage & home renovation.</div>
+            <div class="loan-meta">
+                <span class="loan-rate">from 3.2% APR</span>
+                <button class="btn-apply" disabled><i class="fas fa-paper-plane"></i> Apply</button>
+            </div>
+        </div>
+        <!-- Car -->
+        <div class="loan-card">
+            <div class="loan-icon"><i class="fas fa-car"></i></div>
+            <h3>Car Loan</h3>
+            <div class="loan-desc">New & used vehicles.</div>
+            <div class="loan-meta">
+                <span class="loan-rate">from 5.1% APR</span>
+                <button class="btn-apply" disabled><i class="fas fa-paper-plane"></i> Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- why choose us -->
+    <div class="section-title" style="margin-top: 0.5rem;">
+        <i class="fas fa-medal"></i> Why RockSolid
+    </div>
+    <div class="why-us">
+        <div class="why-item">
+            <i class="fas fa-shield-alt"></i>
+            <div>
+                <h4>Secure & Trusted</h4>
+                <p>Your data is safe with bank‑grade encryption.</p>
+            </div>
+        </div>
+        <div class="why-item">
+            <i class="fas fa-bolt"></i>
+            <div>
+                <h4>Fast Approval</h4>
+                <p>Get a decision in minutes, not days.</p>
+            </div>
+        </div>
+        <div class="why-item">
+            <i class="fas fa-hand-holding-usd"></i>
+            <div>
+                <h4>Competitive Rates</h4>
+                <p>We offer some of the best APRs on the market.</p>
+            </div>
+        </div>
+        <div class="why-item">
+            <i class="fas fa-smile"></i>
+            <div>
+                <h4>24/7 Support</h4>
+                <p>Real people, ready to help anytime.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        <span><i class="far fa-clock"></i> Last update: today &nbsp;·&nbsp; <i class="fas fa-lock"></i> SSL secured</span>
+    </div>
+</div>

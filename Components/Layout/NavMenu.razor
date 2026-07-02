@@ -1,70 +1,53 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/dashboard">RockSolid</a>
-    </div>
-</div>
+﻿<div class="sidebar">
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+    <div class="brand">
+        <i class="bi bi-bank2"></i>
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="dashboard" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Dashboard
-            </NavLink>
+        <div>
+            <h1>Rock<span>Solid</span></h1>
+            <small>Loan Management</small>
         </div>
-@* 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div> *@
+    </div>
+
+    <nav>
+
+        <NavLink href="/dashboard" Match="NavLinkMatch.All">
+            <i class="bi bi-grid-1x2-fill"></i>
+            <span>Dashboard</span>
+        </NavLink>
+
         <AuthorizeView Roles="Administrator,User">
             <Authorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="loans">
-                        <span class="bi bi-bank-nav-menu" aria-hidden="true"></span> Loans
-                    </NavLink>
-                </div>
+
+                <NavLink href="/loans">
+                    <i class="bi bi-cash-stack"></i>
+                    <span>Loans</span>
+                </NavLink>
+
+                <NavLink href="/applications">
+                    <i class="bi bi-file-earmark-plus"></i>
+                    <span>Applications</span>
+                </NavLink>
+
             </Authorized>
         </AuthorizeView>
-        <AuthorizeView Roles="Administrator,User">
-            <Authorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="applications">
-                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Applications
-                    </NavLink>
-                </div>
-            </Authorized>
-        </AuthorizeView>
+
         <AuthorizeView Roles="Administrator">
             <Authorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="database">
-                        <span class="bi bi-people-fill-nav-menu" aria-hidden="true"></span> Database
-                    </NavLink>
-                </div>
-            </Authorized>
-        </AuthorizeView>
-        <AuthorizeView Roles="Administrator">
-            <Authorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="settings">
-                        <span class="bi bi-settings-nav-menu" aria-hidden="true"></span> Settings
-                    </NavLink>
-                </div>
+
+                <NavLink href="/database">
+                    <i class="bi bi-database-fill"></i>
+                    <span>Database</span>
+                </NavLink>
+
+                <NavLink href="/settings">
+                    <i class="bi bi-gear-fill"></i>
+                    <span>Settings</span>
+                </NavLink>
+
             </Authorized>
         </AuthorizeView>
 
-        
-
-        @* <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div> *@
-
-        
     </nav>
-</div>
 
+</div>
