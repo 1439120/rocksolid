@@ -1,4 +1,7 @@
 @page "/home"
+@using BlazorApp.Components.Reusbale
+@using BlazorApp.Models
+
 <PageTitle>Home</PageTitle>
 
 <div class="dashboard">
@@ -29,36 +32,13 @@
         <i class="bi bi-piggy-bank"></i> Loan offers
     </div>
     <div class="loan-grid">
-        <!-- Personal -->
-        <div class="loan-card">
-            <div class="loan-icon"><i class="bi bi-person-fill"></i></div>
-            <h3>Personal Loan</h3>
-            <div class="loan-desc">Flexible amounts for any need.</div>
-            <div class="loan-meta">
-                <span class="loan-rate">from 4.9% APR</span>
-                <button class="btn-apply" disabled><i class="bi bi-send"></i> Apply</button>
-            </div>
-        </div>
-        <!-- House -->
-        <div class="loan-card">
-            <div class="loan-icon"><i class="bi bi-house-door-fill"></i></div>
-            <h3>House Loan</h3>
-            <div class="loan-desc">Mortgage & home renovation.</div>
-            <div class="loan-meta">
-                <span class="loan-rate">from 3.2% APR</span>
-                <button class="btn-apply" disabled><i class="bi bi-send"></i> Apply</button>
-            </div>
-        </div>
-        <!-- Car -->
-        <div class="loan-card">
-            <div class="loan-icon"><i class="bi bi-car-front-fill"></i></div>
-            <h3>Car Loan</h3>
-            <div class="loan-desc">New & used vehicles.</div>
-            <div class="loan-meta">
-                <span class="loan-rate">from 5.1% APR</span>
-                <button class="btn-apply" disabled><i class="bi bi-send"></i> Apply</button>
-            </div>
-        </div>
+        @foreach(var loaninfo in LoanInfos){
+            <LoanCard 
+                title="@loaninfo.Title" 
+                description="@loaninfo.Description"
+                icon="@loaninfo.Icon"
+                smalldescription="@loaninfo.SmallDescription"/>
+        }
     </div>
 
     <!-- why choose us -->
@@ -101,3 +81,28 @@
     </div>
 
 </div>
+
+@code{
+    private List<LoanInfo> LoanInfos = new()
+    {
+        new LoanInfo{
+            Title="Personal Loan", 
+            Description="Flexible amounts for any need.", 
+            Icon="bi bi-person-fill", 
+            SmallDescription="from 4.9% APR"
+        },
+        new LoanInfo{
+            Title="House Loan", 
+            Description="Mortgage & home renovation.", 
+            Icon="bi bi-house-door-fill", 
+            SmallDescription="from 3.2% APR"
+        },
+        new LoanInfo{
+            Title="Car Loan", 
+            Description="New & used vehicles..", 
+            Icon="bi bi-car-front-fill", 
+            SmallDescription="from 5.1% APR"
+        }
+    };
+
+}
