@@ -1,0 +1,14 @@
+<div class="why-item">
+    <i class="@Icon"></i>
+    <div>
+        <h4>@Title</h4>
+        <p>@Description</p>
+    </div>
+</div>
+
+@code{
+    [Parameter] public string Title{get;set;}="";
+    [Parameter] public string Description{get;set;}="";
+    [Parameter] public string Icon{get;set;}="";
+
+}

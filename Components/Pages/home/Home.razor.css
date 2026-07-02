@@ -95,33 +95,6 @@ body {
     margin-bottom: 1.2rem;
 }
 
-.why-item {
-    flex: 1 1 160px;
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-}
-
-.why-item i {
-    font-size: 1.8rem;
-    color: #1e3c72;
-    background: #e1ebf6;
-    padding: 0.6rem;
-    border-radius: 16px;
-    min-width: 50px;
-    text-align: center;
-}
-
-.why-item div h4 {
-    font-weight: 600;
-    color: #0b1e33;
-    margin-bottom: 0.2rem;
-}
-.why-item div p {
-    color: #4f6d8c;
-    font-size: 0.9rem;
-    line-height: 1.4;
-}
 
 .footer-note {
     display: flex;

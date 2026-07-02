@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace BlazorApp.Models
 {
-    public class LoanInfo
+    public class CardInfo
     {
         public string Title { get; set; } ="";
         public string Description { get; set; } ="";

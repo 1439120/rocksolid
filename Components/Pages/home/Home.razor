@@ -32,12 +32,12 @@
         <i class="bi bi-piggy-bank"></i> Loan offers
     </div>
     <div class="loan-grid">
-        @foreach(var loaninfo in LoanInfos){
+        @foreach(var cardInfo in LoanInfos){
             <LoanCard 
-                title="@loaninfo.Title" 
-                description="@loaninfo.Description"
-                icon="@loaninfo.Icon"
-                smalldescription="@loaninfo.SmallDescription"/>
+                title="@cardInfo.Title" 
+                description="@cardInfo.Description"
+                icon="@cardInfo.Icon"
+                smalldescription="@cardInfo.SmallDescription"/>
         }
     </div>
 
@@ -46,34 +46,12 @@
         <i class="bi bi-award"></i> Why RockSolid
     </div>
     <div class="why-us">
-        <div class="why-item">
-            <i class="bi bi-shield-lock-fill"></i>
-            <div>
-                <h4>Secure & Trusted</h4>
-                <p>Your data is safe with bank‑grade encryption.</p>
-            </div>
-        </div>
-        <div class="why-item">
-            <i class="bi bi-lightning-charge-fill"></i>
-            <div>
-                <h4>Fast Approval</h4>
-                <p>Get a decision in minutes, not days.</p>
-            </div>
-        </div>
-        <div class="why-item">
-            <i class="bi bi-cash-coin"></i>
-            <div>
-                <h4>Competitive Rates</h4>
-                <p>We offer some of the best APRs on the market.</p>
-            </div>
-        </div>
-        <div class="why-item">
-            <i class="bi bi-emoji-smile"></i>
-            <div>
-                <h4>24/7 Support</h4>
-                <p>Real people, ready to help anytime.</p>
-            </div>
-        </div>
+        @foreach(var whyus in WhyusInfos){
+            <WhyusCard 
+            title="@whyus.Title" 
+            description="@whyus.Description"
+            icon="@whyus.Icon"/>
+        }
     </div>
 
     <div class="footer-note">
@@ -83,25 +61,49 @@
 </div>
 
 @code{
-    private List<LoanInfo> LoanInfos = new()
+    private List<CardInfo> LoanInfos = new()
     {
-        new LoanInfo{
+        new CardInfo{
             Title="Personal Loan", 
             Description="Flexible amounts for any need.", 
             Icon="bi bi-person-fill", 
             SmallDescription="from 4.9% APR"
         },
-        new LoanInfo{
+        new CardInfo{
             Title="House Loan", 
             Description="Mortgage & home renovation.", 
             Icon="bi bi-house-door-fill", 
             SmallDescription="from 3.2% APR"
         },
-        new LoanInfo{
+        new CardInfo{
             Title="Car Loan", 
             Description="New & used vehicles..", 
             Icon="bi bi-car-front-fill", 
             SmallDescription="from 5.1% APR"
+        }
+    };
+
+    private List<CardInfo> WhyusInfos = new()
+    {
+        new CardInfo{
+            Title="Secure & Trusted", 
+            Description="Your data is safe with bank‑grade encryption", 
+            Icon="bi bi-shield-lock-fill", 
+        },
+        new CardInfo{
+            Title="Fast Approval", 
+            Description="Get a decision in minutes, not days.", 
+            Icon="bi bi-lightning-charge-fill", 
+        },
+        new CardInfo{
+            Title="Competitive Rates", 
+            Description="We offer some of the best APRs on the market.", 
+            Icon="bi bi-cash-coin", 
+        },
+        new CardInfo{
+            Title="24/7 Support", 
+            Description="Real people, ready to help anytime.", 
+            Icon="bi bi-emoji-smile", 
         }
     };
 
