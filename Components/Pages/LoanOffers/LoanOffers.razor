@@ -1,0 +1,701 @@
+@page "/offers"
+@page "/loans/offers"
+<PageTitle>Loan Offers | RockSolid</PageTitle>
+@using BlazorApp.Models
+@inject NavigationManager NavigationManager
+
+<div class="offers-container">
+    <!-- Page Header -->
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-6 fw-bold text-primary mb-1">Loan Offers</h1>
+            <p class="text-secondary m-0">Configure and manage your loan products</p>
+        </div>
+        <button class="btn btn-primary rounded-pill px-4" @onclick="CreateNewOffer">
+            <i class="bi bi-plus-lg me-2"></i>Create New Offer
+        </button>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="stat-mini-card bg-white rounded-4 p-3 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="text-secondary">Active Offers</small>
+                        <h5 class="fw-bold mb-0">@ActiveOffers</h5>
+                    </div>
+                    <div class="stat-icon-small bg-success bg-opacity-10 rounded-3 p-2">
+                        <i class="bi bi-check-circle text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-mini-card bg-white rounded-4 p-3 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="text-secondary">Total Applications</small>
+                        <h5 class="fw-bold mb-0">1,247</h5>
+                    </div>
+                    <div class="stat-icon-small bg-primary bg-opacity-10 rounded-3 p-2">
+                        <i class="bi bi-file-text text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-mini-card bg-white rounded-4 p-3 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="text-secondary">Approval Rate</small>
+                        <h5 class="fw-bold mb-0">78.5%</h5>
+                    </div>
+                    <div class="stat-icon-small bg-warning bg-opacity-10 rounded-3 p-2">
+                        <i class="bi bi-graph-up text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-mini-card bg-white rounded-4 p-3 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="text-secondary">Average Loan</small>
+                        <h5 class="fw-bold mb-0">R45,600</h5>
+                    </div>
+                    <div class="stat-icon-small bg-info bg-opacity-10 rounded-3 p-2">
+                        <i class="bi bi-cash text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter/Search Bar -->
+    <div class="filter-bar bg-white rounded-4 p-3 shadow-sm mb-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-4">
+                <div class="search-box-modern">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="form-control border-0" placeholder="Search loan offers..." @bind="searchTerm" @bind:event="oninput" />
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                    <button class="btn btn-outline-secondary rounded-pill btn-sm @(activeFilter == "all" ? "active" : "")" @onclick='() => SetFilter("all")'>
+                        <i class="bi bi-grid-3x3-gap me-1"></i>All
+                    </button>
+                    <button class="btn btn-outline-secondary rounded-pill btn-sm @(activeFilter == "active" ? "active" : "")" @onclick='() => SetFilter("active")'>
+                        <i class="bi bi-check-circle me-1"></i>Active
+                    </button>
+                    <button class="btn btn-outline-secondary rounded-pill btn-sm @(activeFilter == "draft" ? "active" : "")" @onclick='() => SetFilter("draft")'>
+                        <i class="bi bi-pencil me-1"></i>Draft
+                    </button>
+                    <button class="btn btn-outline-secondary rounded-pill btn-sm @(activeFilter == "archived" ? "active" : "")" @onclick='() => SetFilter("archived")'>
+                        <i class="bi bi-archive me-1"></i>Archived
+                    </button>
+                    <div class="vr"></div>
+                    <button class="btn btn-outline-primary rounded-pill btn-sm" @onclick="ResetFilters">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loan Offers Grid -->
+    <div class="row g-4">
+        @foreach (var offer in FilteredOffers)
+        {
+            <div class="col-xl-4 col-lg-6">
+                <div class="offer-card card shadow-sm border-0 rounded-4 overflow-hidden @(offer.Status == "Active" ? "border-start border-4 border-success" : "")">
+                    <!-- Card Header -->
+                    <div class="offer-header p-4" style="background: @(offer.Type == "Personal" ? "linear-gradient(135deg, #667eea20, #764ba220)" : 
+                                                       offer.Type == "Home" ? "linear-gradient(135deg, #6c757d20, #49505720)" : 
+                                                       "linear-gradient(135deg, #fd7e1420, #ff6b6b20)")">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h4 class="fw-bold mb-1" style="color: @(offer.Type == "Personal" ? "#667eea" : 
+                                                               offer.Type == "Home" ? "#6c757d" : "#fd7e14")">
+                                    <i class="bi @GetIconForType(offer.Type) me-2"></i>
+                                    @offer.Type Loan
+                                </h4>
+                                <span class="badge @(offer.Status == "Active" ? "bg-success" : 
+                                                    offer.Status == "Draft" ? "bg-warning" : "bg-secondary")">
+                                    @offer.Status
+                                </span>
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-link text-secondary p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical fs-5"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><button class="dropdown-item" @onclick='() => EditOffer(offer)'><i class="bi bi-pencil me-2"></i>Edit</button></li>
+                                    <li><button class="dropdown-item" @onclick='() => DuplicateOffer(offer)'><i class="bi bi-copy me-2"></i>Duplicate</button></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <button class="dropdown-item @(offer.Status == "Active" ? "text-warning" : "text-success")" 
+                                                @onclick='() => ToggleOfferStatus(offer)'>
+                                            <i class="bi @(offer.Status == "Active" ? "bi-pause-circle" : "bi-play-circle") me-2"></i>
+                                            @(offer.Status == "Active" ? "Deactivate" : "Activate")
+                                        </button>
+                                    </li>
+                                    <li><button class="dropdown-item text-danger" @onclick='() => DeleteOffer(offer)'><i class="bi bi-trash me-2"></i>Delete</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <p class="text-secondary mt-2 mb-0 small">@offer.Description</p>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="offer-body p-4">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="offer-stat">
+                                    <small class="text-secondary d-block">Min Amount</small>
+                                    <strong class="fs-5">R@(string.Format("{0:N0}", offer.MinAmount))</strong>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="offer-stat">
+                                    <small class="text-secondary d-block">Max Amount</small>
+                                    <strong class="fs-5">R@(string.Format("{0:N0}", offer.MaxAmount))</strong>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="offer-stat">
+                                    <small class="text-secondary d-block">Min Term</small>
+                                    <strong>@offer.MinTerm months</strong>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="offer-stat">
+                                    <small class="text-secondary d-block">Max Term</small>
+                                    <strong>@offer.MaxTerm months</strong>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="offer-stat">
+                                    <small class="text-secondary d-block">Interest Rate</small>
+                                    <strong>@offer.InterestRate%</strong>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="offer-stat">
+                                    <small class="text-secondary d-block">Applications</small>
+                                    <strong>@offer.ApplicationCount</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Auto-Approval Settings -->
+                        <div class="auto-approval-section mt-3 p-3 bg-light rounded-3">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="bi bi-robot text-primary"></i>
+                                <span class="fw-semibold small">Auto-Approval Rules</span>
+                                <span class="badge @(offer.AutoApprovalEnabled ? "bg-success" : "bg-secondary") ms-auto">
+                                    @(offer.AutoApprovalEnabled ? "Enabled" : "Disabled")
+                                </span>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <small class="text-secondary d-block">Min Credit Score</small>
+                                    <span class="fw-semibold">@offer.MinCreditScore</span>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-secondary d-block">Max DTI Ratio</small>
+                                    <span class="fw-semibold">@offer.MaxDTI%</span>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-secondary d-block">Min Income</small>
+                                    <span class="fw-semibold">R@(string.Format("{0:N0}", offer.MinIncome))</span>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-secondary d-block">Employment Min</small>
+                                    <span class="fw-semibold">@offer.MinEmploymentMonths months</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card Footer -->
+                    <div class="offer-footer p-3 bg-light border-top">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="small text-secondary">Last updated: @offer.LastUpdated.ToString("dd MMM yyyy")</span>
+                            </div>
+                            <button class="btn btn-primary rounded-pill btn-sm px-3" @onclick='() => ViewOffer(offer)'>
+                                <i class="bi bi-eye me-1"></i>View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Empty State -->
+    @if (!FilteredOffers.Any())
+    {
+        <div class="empty-state text-center py-5">
+            <div class="card shadow-sm border-0 rounded-4 p-5 mx-auto" style="max-width: 500px;">
+                <i class="bi bi-file-earmark-x display-1 text-secondary mb-3"></i>
+                <h3 class="fw-bold">No Loan Offers Found</h3>
+                <p class="text-secondary mb-4">Create your first loan offer to start accepting applications</p>
+                <button class="btn btn-primary rounded-pill btn-lg px-5" @onclick="CreateNewOffer">
+                    <i class="bi bi-plus-lg me-2"></i>Create Offer
+                </button>
+            </div>
+        </div>
+    }
+
+    <!-- Pagination -->
+    <div class="pagination-container mt-4">
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <button class="page-link" @onclick='() => ChangePage(currentPage - 1)'>Previous</button>
+                </li>
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <button class="page-link" @onclick='() => ChangePage(i)'>@i</button>
+                    </li>
+                }
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <button class="page-link" @onclick='() => ChangePage(currentPage + 1)'>Next</button>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<style>
+    .offers-container {
+        padding: 0.5rem;
+    }
+
+    .stat-mini-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: default;
+    }
+
+    .stat-mini-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,.1) !important;
+    }
+
+    .stat-icon-small {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .filter-bar {
+        background: white;
+        border-radius: 1rem;
+    }
+
+    .search-box-modern {
+        display: flex;
+        align-items: center;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 0.25rem 0.75rem;
+        transition: all 0.2s ease;
+    }
+
+    .search-box-modern:focus-within {
+        background: white;
+        box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.2);
+    }
+
+    .search-box-modern i {
+        color: #6c757d;
+        margin-right: 0.5rem;
+    }
+
+    .search-box-modern input {
+        background: transparent;
+        border: none;
+        padding: 0.5rem 0;
+        outline: none;
+        width: 100%;
+    }
+
+    .offer-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+    }
+
+    .offer-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 1rem 2rem rgba(0,0,0,.1) !important;
+    }
+
+    .offer-stat {
+        padding: 0.25rem 0;
+    }
+
+    .offer-stat small {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .auto-approval-section {
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .btn-outline-secondary.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+    }
+
+    .btn-outline-secondary.active:hover {
+        background: #5a6fd6;
+        color: white;
+    }
+
+    .pagination .page-link {
+        border: none;
+        color: #495057;
+        border-radius: 8px;
+        margin: 0 2px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .pagination .page-link:hover {
+        background: #f8f9fa;
+        color: #667eea;
+    }
+
+    .pagination .page-item.active .page-link {
+        background: #667eea;
+        color: white;
+    }
+
+    .dropdown-menu {
+        border: none;
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+        border-radius: 12px;
+    }
+
+    .dropdown-item {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: background 0.2s ease;
+        cursor: pointer;
+    }
+
+    .dropdown-item:hover {
+        background: #f8f9fa;
+    }
+
+    .vr {
+        width: 1px;
+        background: #dee2e6;
+        margin: 0 0.5rem;
+    }
+
+    .page-item.disabled .page-link {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .offers-container {
+            padding: 0;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 1rem;
+        }
+
+        .filter-bar .row {
+            flex-direction: column;
+        }
+
+        .filter-bar .d-flex {
+            justify-content: flex-start !important;
+        }
+
+        .offer-header {
+            padding: 1.5rem !important;
+        }
+
+        .offer-body {
+            padding: 1.5rem !important;
+        }
+    }
+</style>
+
+@code {
+    private string searchTerm = "";
+    private string activeFilter = "all";
+    private int currentPage = 1;
+    private int pageSize = 6;
+    private int totalPages = 1;
+
+    private List<LoanOffer> Offers = new();
+    private List<LoanOffer> FilteredOffers => GetFilteredOffers();
+
+    protected override void OnInitialized()
+    {
+        LoadSampleOffers();
+    }
+
+    private void LoadSampleOffers()
+    {
+        Offers = new List<LoanOffer>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Type = "Personal",
+                Description = "Quick personal loans for any purpose",
+                MinAmount = 1000,
+                MaxAmount = 25000,
+                MinTerm = 3,
+                MaxTerm = 36,
+                InterestRate = 12.5,
+                Status = "Active",
+                ApplicationCount = 234,
+                AutoApprovalEnabled = true,
+                MinCreditScore = 650,
+                MaxDTI = 40,
+                MinIncome = 8000,
+                MinEmploymentMonths = 6,
+                LastUpdated = DateTime.Now.AddDays(-2)
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Type = "Home",
+                Description = "Affordable home loans with flexible terms",
+                MinAmount = 50000,
+                MaxAmount = 1000000,
+                MinTerm = 12,
+                MaxTerm = 240,
+                InterestRate = 8.5,
+                Status = "Active",
+                ApplicationCount = 89,
+                AutoApprovalEnabled = true,
+                MinCreditScore = 700,
+                MaxDTI = 35,
+                MinIncome = 25000,
+                MinEmploymentMonths = 12,
+                LastUpdated = DateTime.Now.AddDays(-5)
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Type = "Car",
+                Description = "Finance your dream car today",
+                MinAmount = 10000,
+                MaxAmount = 500000,
+                MinTerm = 6,
+                MaxTerm = 72,
+                InterestRate = 10.0,
+                Status = "Active",
+                ApplicationCount = 156,
+                AutoApprovalEnabled = false,
+                MinCreditScore = 620,
+                MaxDTI = 45,
+                MinIncome = 12000,
+                MinEmploymentMonths = 6,
+                LastUpdated = DateTime.Now.AddDays(-1)
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Type = "Personal",
+                Description = "Premium personal loans for high earners",
+                MinAmount = 5000,
+                MaxAmount = 50000,
+                MinTerm = 6,
+                MaxTerm = 48,
+                InterestRate = 10.0,
+                Status = "Draft",
+                ApplicationCount = 0,
+                AutoApprovalEnabled = true,
+                MinCreditScore = 680,
+                MaxDTI = 38,
+                MinIncome = 15000,
+                MinEmploymentMonths = 12,
+                LastUpdated = DateTime.Now.AddDays(-3)
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Type = "Home",
+                Description = "Premium home loans for luxury properties",
+                MinAmount = 100000,
+                MaxAmount = 2000000,
+                MinTerm = 24,
+                MaxTerm = 360,
+                InterestRate = 7.5,
+                Status = "Archived",
+                ApplicationCount = 45,
+                AutoApprovalEnabled = true,
+                MinCreditScore = 750,
+                MaxDTI = 30,
+                MinIncome = 50000,
+                MinEmploymentMonths = 24,
+                LastUpdated = DateTime.Now.AddMonths(-2)
+            }
+        };
+
+        UpdatePagination();
+    }
+
+    private List<LoanOffer> GetFilteredOffers()
+    {
+        var query = Offers.AsQueryable();
+
+        // Apply search filter
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            query = query.Where(o => 
+                o.Type.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                o.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Apply status filter
+        if (activeFilter != "all")
+        {
+            query = query.Where(o => 
+                o.Status.Equals(activeFilter, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Apply pagination
+        var filtered = query.ToList();
+        totalPages = (int)Math.Ceiling((double)filtered.Count / pageSize);
+        
+        return filtered
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    private void UpdatePagination()
+    {
+        var totalItems = Offers.Count;
+        totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+    }
+
+    private void ChangePage(int page)
+    {
+        if (page >= 1 && page <= totalPages)
+        {
+            currentPage = page;
+        }
+    }
+
+    private void SetFilter(string filter)
+    {
+        activeFilter = filter;
+        currentPage = 1;
+    }
+
+    private void ResetFilters()
+    {
+        searchTerm = "";
+        activeFilter = "all";
+        currentPage = 1;
+    }
+
+    private string GetIconForType(string type) => type switch
+    {
+        "Personal" => "bi-person",
+        "Home" => "bi-house",
+        "Car" => "bi-car-front",
+        _ => "bi-file-text"
+    };
+
+    private int ActiveOffers => Offers.Count(o => o.Status == "Active");
+
+    private void CreateNewOffer()
+    {
+        NavigationManager.NavigateTo("/offers/create");
+    }
+
+    private void EditOffer(LoanOffer offer)
+    {
+        NavigationManager.NavigateTo($"/offers/edit/{offer.Id}");
+    }
+
+    private void DuplicateOffer(LoanOffer offer)
+    {
+        var newOffer = new LoanOffer
+        {
+            Id = Guid.NewGuid(),
+            Type = offer.Type,
+            Description = $"{offer.Description} (Copy)",
+            MinAmount = offer.MinAmount,
+            MaxAmount = offer.MaxAmount,
+            MinTerm = offer.MinTerm,
+            MaxTerm = offer.MaxTerm,
+            InterestRate = offer.InterestRate,
+            Status = "Draft",
+            ApplicationCount = 0,
+            AutoApprovalEnabled = offer.AutoApprovalEnabled,
+            MinCreditScore = offer.MinCreditScore,
+            MaxDTI = offer.MaxDTI,
+            MinIncome = offer.MinIncome,
+            MinEmploymentMonths = offer.MinEmploymentMonths,
+            LastUpdated = DateTime.Now
+        };
+        Offers.Add(newOffer);
+        UpdatePagination();
+    }
+
+    private void ToggleOfferStatus(LoanOffer offer)
+    {
+        offer.Status = offer.Status == "Active" ? "Draft" : "Active";
+        offer.LastUpdated = DateTime.Now;
+    }
+
+    private void DeleteOffer(LoanOffer offer)
+    {
+        Offers.Remove(offer);
+        UpdatePagination();
+    }
+
+    private void ViewOffer(LoanOffer offer)
+    {
+        NavigationManager.NavigateTo($"/offers/view/{offer.Id}");
+    }
+
+    // Model Class
+    private class LoanOffer
+    {
+        public Guid Id { get; set; }
+        public string Type { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public decimal MinAmount { get; set; }
+        public decimal MaxAmount { get; set; }
+        public int MinTerm { get; set; }
+        public int MaxTerm { get; set; }
+        public double InterestRate { get; set; }
+        public string Status { get; set; } = "Draft";
+        public int ApplicationCount { get; set; }
+        public bool AutoApprovalEnabled { get; set; }
+        public int MinCreditScore { get; set; }
+        public int MaxDTI { get; set; }
+        public decimal MinIncome { get; set; }
+        public int MinEmploymentMonths { get; set; }
+        public DateTime LastUpdated { get; set; }
+    }
+}
