@@ -1,0 +1,828 @@
+@page "/installments"
+@page "/loans/installments"
+<PageTitle>Ongoing Installments | RockSolid</PageTitle>
+@using BlazorApp.Models
+@inject NavigationManager NavigationManager
+
+<div class="installments-container">
+    <!-- Page Header -->
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-6 fw-bold text-primary mb-1">Ongoing Installments</h1>
+            <p class="text-secondary m-0">Track and manage all active loan repayments</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary rounded-pill px-4" @onclick="ExportData">
+                <i class="bi bi-download me-2"></i>Export
+            </button>
+            <button class="btn btn-primary rounded-pill px-4" @onclick="RefreshData">
+                <i class="bi bi-arrow-clockwise me-2"></i>Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Financial Summary Tiles -->
+    <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-lg-6">
+            <div class="summary-tile bg-white rounded-4 p-4 shadow-sm border-start border-4 border-primary">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-secondary m-0 small">Total Outstanding</p>
+                        <h3 class="fw-bold mt-1">R@(string.Format("{0:N0}", TotalOutstanding))</h3>
+                        <span class="badge bg-primary bg-opacity-10 text-primary">@ActiveInstallments active</span>
+                    </div>
+                    <div class="tile-icon bg-primary bg-opacity-10 rounded-3 p-3">
+                        <i class="bi bi-coin fs-4 text-primary"></i>
+                    </div>
+                </div>
+                <div class="progress mt-2" style="height: 4px;">
+                    <div class="progress-bar bg-primary" style="width: @OutstandingPercentage%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6">
+            <div class="summary-tile bg-white rounded-4 p-4 shadow-sm border-start border-4 border-success">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-secondary m-0 small">Total Paid</p>
+                        <h3 class="fw-bold mt-1">R@(string.Format("{0:N0}", TotalPaid))</h3>
+                        <span class="badge bg-success bg-opacity-10 text-success">@PaidInstallments paid</span>
+                    </div>
+                    <div class="tile-icon bg-success bg-opacity-10 rounded-3 p-3">
+                        <i class="bi bi-check-circle fs-4 text-success"></i>
+                    </div>
+                </div>
+                <div class="progress mt-2" style="height: 4px;">
+                    <div class="progress-bar bg-success" style="width: @PaidPercentage%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6">
+            <div class="summary-tile bg-white rounded-4 p-4 shadow-sm border-start border-4 border-warning">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-secondary m-0 small">Interest Earned</p>
+                        <h3 class="fw-bold mt-1">R@(string.Format("{0:N0}", InterestEarned))</h3>
+                        <span class="badge bg-warning bg-opacity-10 text-warning">+@(InterestGrowth)%</span>
+                    </div>
+                    <div class="tile-icon bg-warning bg-opacity-10 rounded-3 p-3">
+                        <i class="bi bi-graph-up-arrow fs-4 text-warning"></i>
+                    </div>
+                </div>
+                <div class="progress mt-2" style="height: 4px;">
+                    <div class="progress-bar bg-warning" style="width: @InterestPercentage%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6">
+            <div class="summary-tile bg-white rounded-4 p-4 shadow-sm border-start border-4 border-info">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-secondary m-0 small">Expected This Month</p>
+                        <h3 class="fw-bold mt-1">R@(string.Format("{0:N0}", ExpectedMonthly))</h3>
+                        <span class="badge bg-info bg-opacity-10 text-info">@InstallmentsDueThisMonth due</span>
+                    </div>
+                    <div class="tile-icon bg-info bg-opacity-10 rounded-3 p-3">
+                        <i class="bi bi-calendar-check fs-4 text-info"></i>
+                    </div>
+                </div>
+                <div class="progress mt-2" style="height: 4px;">
+                    <div class="progress-bar bg-info" style="width: @MonthlyProgress%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Metrics -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="metric-card bg-white rounded-4 p-3 shadow-sm text-center">
+                <small class="text-secondary">Total Loans</small>
+                <h5 class="fw-bold mb-0">@TotalLoans</h5>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card bg-white rounded-4 p-3 shadow-sm text-center">
+                <small class="text-secondary">Average Installment</small>
+                <h5 class="fw-bold mb-0">R@(string.Format("{0:N0}", AverageInstallment))</h5>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card bg-white rounded-4 p-3 shadow-sm text-center">
+                <small class="text-secondary">Profit Margin</small>
+                <h5 class="fw-bold mb-0 text-success">@ProfitMargin%</h5>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card bg-white rounded-4 p-3 shadow-sm text-center">
+                <small class="text-secondary">On-Time Rate</small>
+                <h5 class="fw-bold mb-0 text-primary">@OnTimeRate%</h5>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter/Search -->
+    <div class="filter-bar bg-white rounded-4 p-3 shadow-sm mb-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-3">
+                <div class="search-box-modern">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="form-control border-0" placeholder="Search loans..." @bind="searchTerm" @bind:event="oninput" />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select border-0 bg-light rounded-pill" @bind="statusFilter">
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="paid">Fully Paid</option>
+                    <option value="overdue">Overdue</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select border-0 bg-light rounded-pill" @bind="sortBy">
+                    <option value="dueDate">Sort by Due Date</option>
+                    <option value="amount">Sort by Amount</option>
+                    <option value="client">Sort by Client</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex gap-2 justify-content-md-end">
+                    <button class="btn btn-outline-secondary rounded-pill btn-sm" @onclick="ResetFilters">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Installments List -->
+    <div class="installments-list">
+        @foreach (var installment in FilteredInstallments)
+        {
+            <div class="installment-card card shadow-sm border-0 rounded-4 mb-3 overflow-hidden">
+                <div class="row g-0">
+                    <div class="col-md-8">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h5 class="fw-bold mb-1">@installment.ClientName</h5>
+                                    <p class="text-secondary small mb-0">@installment.LoanType · @installment.LoanReference</p>
+                                </div>
+                                <span class="badge @(installment.Status == "Paid" ? "bg-success" : 
+                                                    installment.Status == "Overdue" ? "bg-danger" : "bg-primary") rounded-pill px-3 py-2">
+                                    @installment.Status
+                                </span>
+                            </div>
+                            
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-3">
+                                    <small class="text-secondary d-block">Amount</small>
+                                    <strong class="fs-5">R@(string.Format("{0:N0}", installment.Amount))</strong>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-secondary d-block">Due Date</small>
+                                    <strong>@installment.DueDate.ToString("dd MMM yyyy")</strong>
+                                    @if (installment.DaysUntilDue <= 7 && installment.Status != "Paid")
+                                    {
+                                        <span class="badge bg-warning bg-opacity-10 text-warning ms-2">@installment.DaysUntilDue days</span>
+                                    }
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-secondary d-block">Paid Amount</small>
+                                    <strong>R@(string.Format("{0:N0}", installment.TotalPaid))</strong>
+                                    <span class="text-secondary small">of R@(string.Format("{0:N0}", installment.TotalAmount))</span>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-secondary d-block">Progress</small>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="progress flex-grow-1" style="height: 6px;">
+                                            <div class="progress-bar @(installment.ProgressPercentage == 100 ? "bg-success" : "bg-primary")" 
+                                                 style="width: @installment.ProgressPercentage%"></div>
+                                        </div>
+                                        <span class="small fw-bold">@installment.ProgressPercentage%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Payment History Toggle -->
+                            <button class="btn btn-link text-primary p-0 mt-2" @onclick='() => TogglePaymentHistory(installment.Id)'>
+                                <i class="bi bi-chevron-down me-1"></i>
+                                @(expandedInstallments.Contains(installment.Id) ? "Hide" : "View") Payment History
+                            </button>
+
+                            <!-- Payment History -->
+                            @if (expandedInstallments.Contains(installment.Id))
+                            {
+                                <div class="payment-history mt-3 p-3 bg-light rounded-3">
+                                    <h6 class="fw-bold mb-2">Payment History</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-borderless mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Amount</th>
+                                                    <th>Method</th>
+                                                    <th>Status</th>
+                                                    <th>Reference</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (installment.Payments.Any())
+                                                {
+                                                    @foreach (var payment in installment.Payments)
+                                                    {
+                                                        <tr>
+                                                            <td>@payment.Date.ToString("dd MMM yyyy")</td>
+                                                            <td>R@(string.Format("{0:N0}", payment.Amount))</td>
+                                                            <td><span class="badge bg-light text-dark">@payment.Method</span></td>
+                                                            <td>
+                                                                <span class="badge @(payment.Status == "Successful" ? "bg-success" : "bg-warning")">
+                                                                    @payment.Status
+                                                                </span>
+                                                            </td>
+                                                            <td><small class="text-secondary">@payment.Reference</small></td>
+                                                        </tr>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <tr>
+                                                        <td colspan="5" class="text-center text-secondary">No payments recorded yet</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-4" style="background: @(installment.Status == "Paid" ? "linear-gradient(135deg, #28a74510, #20c99710)" : 
+                                                       installment.Status == "Overdue" ? "linear-gradient(135deg, #dc354510, #ff6b6b10)" : 
+                                                       "linear-gradient(135deg, #667eea10, #764ba210)")">
+                        <div class="card-body p-4 d-flex flex-column h-100 justify-content-between">
+                            <div>
+                                <small class="text-secondary d-block">Next Payment</small>
+                                @if (installment.NextPaymentDate.HasValue)
+                                {
+                                    <h6 class="fw-bold">@installment.NextPaymentDate.Value.ToString("dd MMM yyyy")</h6>
+                                    <small class="text-secondary">@((installment.NextPaymentDate.Value - DateTime.Now).Days) days from now</small>
+                                }
+                                else
+                                {
+                                    <p class="text-secondary">Fully paid</p>
+                                }
+                            </div>
+                            <div class="mt-3">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button class="btn btn-primary rounded-pill btn-sm flex-grow-1" @onclick='() => ViewInstallment(installment.Id)'>
+                                        <i class="bi bi-eye me-1"></i>Details
+                                    </button>
+                                    @if (installment.Status != "Paid")
+                                    {
+                                        <button class="btn btn-success rounded-pill btn-sm flex-grow-1" @onclick='() => RecordPayment(installment.Id)'>
+                                            <i class="bi bi-cash me-1"></i>Pay
+                                        </button>
+                                    }
+                                </div>
+                                @if (installment.Status == "Active" && installment.ProgressPercentage > 50)
+                                {
+                                    <span class="badge bg-info text-white w-100 mt-2">On track</span>
+                                }
+                                @if (installment.Status == "Overdue")
+                                {
+                                    <span class="badge bg-danger text-white w-100 mt-2">Overdue - Action Required</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Empty State -->
+    @if (!FilteredInstallments.Any())
+    {
+        <div class="empty-state text-center py-5">
+            <div class="card shadow-sm border-0 rounded-4 p-5 mx-auto" style="max-width: 500px;">
+                <i class="bi bi-inbox display-1 text-secondary mb-3"></i>
+                <h3 class="fw-bold">No Installments Found</h3>
+                <p class="text-secondary mb-4">There are no active or past installments to display</p>
+                <button class="btn btn-primary rounded-pill btn-lg px-5" @onclick="CreateNewLoan">
+                    <i class="bi bi-plus-lg me-2"></i>Create New Loan
+                </button>
+            </div>
+        </div>
+    }
+
+    <!-- Pagination -->
+    <div class="pagination-container mt-4">
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <button class="page-link" @onclick='() => ChangePage(currentPage - 1)'>Previous</button>
+                </li>
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <button class="page-link" @onclick='() => ChangePage(i)'>@i</button>
+                    </li>
+                }
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <button class="page-link" @onclick='() => ChangePage(currentPage + 1)'>Next</button>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<style>
+    .installments-container {
+        padding: 0.5rem;
+    }
+
+    .summary-tile {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: default;
+    }
+
+    .summary-tile:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.75rem 1.5rem rgba(0,0,0,.1) !important;
+    }
+
+    .tile-icon {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .metric-card {
+        transition: all 0.2s ease;
+        cursor: default;
+    }
+
+    .metric-card:hover {
+        background: #f8f9fa;
+    }
+
+    .filter-bar {
+        background: white;
+        border-radius: 1rem;
+    }
+
+    .search-box-modern {
+        display: flex;
+        align-items: center;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 0.25rem 0.75rem;
+        transition: all 0.2s ease;
+    }
+
+    .search-box-modern:focus-within {
+        background: white;
+        box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.2);
+    }
+
+    .search-box-modern i {
+        color: #6c757d;
+        margin-right: 0.5rem;
+    }
+
+    .search-box-modern input {
+        background: transparent;
+        border: none;
+        padding: 0.5rem 0;
+        outline: none;
+        width: 100%;
+    }
+
+    .installment-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .installment-card:hover {
+        transform: translateX(3px);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,.1) !important;
+    }
+
+    .payment-history {
+        border-radius: 8px;
+    }
+
+    .table th {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6c757d;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .table td {
+        font-size: 0.85rem;
+        vertical-align: middle;
+    }
+
+    .pagination .page-link {
+        border: none;
+        color: #495057;
+        border-radius: 8px;
+        margin: 0 2px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .pagination .page-link:hover {
+        background: #f8f9fa;
+        color: #667eea;
+    }
+
+    .pagination .page-item.active .page-link {
+        background: #667eea;
+        color: white;
+    }
+
+    .page-item.disabled .page-link {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .badge {
+        font-weight: 500;
+    }
+
+    .form-select {
+        cursor: pointer;
+        font-size: 0.875rem;
+    }
+
+    .progress {
+        background-color: #e9ecef;
+    }
+
+    .progress-bar {
+        transition: width 0.6s ease;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .installments-container {
+            padding: 0;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 1rem;
+        }
+
+        .page-header .d-flex {
+            width: 100%;
+        }
+
+        .page-header .d-flex .btn {
+            flex: 1;
+        }
+
+        .filter-bar .row {
+            flex-direction: column;
+        }
+
+        .filter-bar .d-flex {
+            justify-content: flex-start !important;
+        }
+
+        .installment-card .col-md-8 {
+            order: 2;
+        }
+
+        .installment-card .col-md-4 {
+            order: 1;
+        }
+
+        .installment-card .card-body {
+            padding: 1.5rem !important;
+        }
+
+        .row.g-3 {
+            --bs-gutter-y: 0.5rem;
+        }
+
+        .payment-history {
+            font-size: 0.8rem;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .summary-tile h3 {
+            font-size: 1.25rem;
+        }
+
+        .tile-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .metric-card {
+            padding: 0.75rem !important;
+        }
+
+        .installment-card .col-md-3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .table-responsive {
+            font-size: 0.75rem;
+        }
+
+        .btn-group-vertical-sm {
+            flex-direction: column;
+        }
+    }
+</style>
+
+@code {
+    private string searchTerm = "";
+    private string statusFilter = "all";
+    private string sortBy = "dueDate";
+    private int currentPage = 1;
+    private int pageSize = 5;
+    private int totalPages = 1;
+
+    private List<InstallmentViewModel> Installments = new();
+    private List<InstallmentViewModel> FilteredInstallments => GetFilteredInstallments();
+    private HashSet<Guid> expandedInstallments = new();
+
+    // Summary Statistics
+    private decimal TotalOutstanding => Installments.Where(i => i.Status != "Paid").Sum(i => i.Amount - i.TotalPaid);
+    private decimal TotalPaid => Installments.Sum(i => i.TotalPaid);
+    private decimal InterestEarned => Installments.Sum(i => i.InterestEarned);
+    private decimal ExpectedMonthly => Installments.Where(i => i.DueDate.Month == DateTime.Now.Month && i.Status != "Paid").Sum(i => i.Amount);
+    private int ActiveInstallments => Installments.Count(i => i.Status == "Active");
+    private int PaidInstallments => Installments.Count(i => i.Status == "Paid");
+    private int InstallmentsDueThisMonth => Installments.Count(i => i.DueDate.Month == DateTime.Now.Month && i.Status != "Paid");
+    private int TotalLoans => Installments.Count;
+    private decimal AverageInstallment => Installments.Any() ? Installments.Average(i => i.Amount) : 0;
+    private decimal ProfitMargin => TotalPaid > 0 ? Math.Round((InterestEarned / TotalPaid) * 100, 2) : 0;
+    private decimal OnTimeRate => Installments.Any() ? Math.Round((decimal)Installments.Count(i => i.Status == "Paid" && i.PaidOnTime) / Installments.Count * 100, 2) : 0;
+
+    // Progress Percentages
+    private decimal OutstandingPercentage => TotalOutstanding + TotalPaid > 0 ? Math.Round((TotalOutstanding / (TotalOutstanding + TotalPaid)) * 100, 2) : 0;
+    private decimal PaidPercentage => TotalPaid + TotalOutstanding > 0 ? Math.Round((TotalPaid / (TotalPaid + TotalOutstanding)) * 100, 2) : 0;
+    private decimal InterestPercentage => TotalPaid > 0 ? Math.Round((InterestEarned / TotalPaid) * 100, 2) : 0;
+    private decimal MonthlyProgress => ExpectedMonthly > 0 ? Math.Round((Installments.Where(i => i.DueDate.Month == DateTime.Now.Month && i.Status == "Paid").Sum(i => i.Amount) / ExpectedMonthly) * 100, 2) : 0;
+    private decimal InterestGrowth => InterestEarned > 0 ? Math.Round((InterestEarned / (InterestEarned > 100 ? InterestEarned - 100 : 1)) * 100, 2) : 0;
+
+    protected override void OnInitialized()
+    {
+        LoadSampleData();
+    }
+
+    private void LoadSampleData()
+    {
+        Installments = new List<InstallmentViewModel>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClientName = "John Doe",
+                LoanType = "Personal Loan",
+                LoanReference = "PL-2024-001",
+                Amount = 4500,
+                TotalAmount = 45000,
+                TotalPaid = 25000,
+                InterestEarned = 2250,
+                DueDate = DateTime.Now.AddDays(5),
+                NextPaymentDate = DateTime.Now.AddDays(5),
+                Status = "Active",
+                PaidOnTime = true,
+                Payments = new List<Payment>
+                {
+                    new() { Date = DateTime.Now.AddMonths(-3), Amount = 2500, Method = "EFT", Status = "Successful", Reference = "PAY-001" },
+                    new() { Date = DateTime.Now.AddMonths(-2), Amount = 2500, Method = "Credit Card", Status = "Successful", Reference = "PAY-002" },
+                    new() { Date = DateTime.Now.AddMonths(-1), Amount = 2500, Method = "EFT", Status = "Successful", Reference = "PAY-003" }
+                }
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClientName = "Sarah Smith",
+                LoanType = "Home Loan",
+                LoanReference = "HL-2024-002",
+                Amount = 12500,
+                TotalAmount = 250000,
+                TotalPaid = 75000,
+                InterestEarned = 12500,
+                DueDate = DateTime.Now.AddDays(-3),
+                NextPaymentDate = DateTime.Now.AddMonths(1),
+                Status = "Overdue",
+                PaidOnTime = false,
+                Payments = new List<Payment>
+                {
+                    new() { Date = DateTime.Now.AddMonths(-4), Amount = 12500, Method = "EFT", Status = "Successful", Reference = "PAY-004" },
+                    new() { Date = DateTime.Now.AddMonths(-3), Amount = 12500, Method = "EFT", Status = "Successful", Reference = "PAY-005" },
+                    new() { Date = DateTime.Now.AddMonths(-2), Amount = 12500, Method = "Debit Order", Status = "Failed", Reference = "PAY-006" }
+                }
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClientName = "Mike Johnson",
+                LoanType = "Car Loan",
+                LoanReference = "CL-2024-003",
+                Amount = 8200,
+                TotalAmount = 123000,
+                TotalPaid = 123000,
+                InterestEarned = 18450,
+                DueDate = DateTime.Now.AddDays(-15),
+                NextPaymentDate = null,
+                Status = "Paid",
+                PaidOnTime = true,
+                Payments = new List<Payment>
+                {
+                    new() { Date = DateTime.Now.AddMonths(-6), Amount = 8200, Method = "EFT", Status = "Successful", Reference = "PAY-007" },
+                    new() { Date = DateTime.Now.AddMonths(-5), Amount = 8200, Method = "EFT", Status = "Successful", Reference = "PAY-008" },
+                    new() { Date = DateTime.Now.AddMonths(-4), Amount = 8200, Method = "Credit Card", Status = "Successful", Reference = "PAY-009" },
+                    new() { Date = DateTime.Now.AddMonths(-3), Amount = 8200, Method = "EFT", Status = "Successful", Reference = "PAY-010" },
+                    new() { Date = DateTime.Now.AddMonths(-2), Amount = 8200, Method = "EFT", Status = "Successful", Reference = "PAY-011" },
+                    new() { Date = DateTime.Now.AddMonths(-1), Amount = 8200, Method = "Debit Order", Status = "Successful", Reference = "PAY-012" }
+                }
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClientName = "Emma Wilson",
+                LoanType = "Personal Loan",
+                LoanReference = "PL-2024-004",
+                Amount = 3500,
+                TotalAmount = 28000,
+                TotalPaid = 7000,
+                InterestEarned = 420,
+                DueDate = DateTime.Now.AddDays(12),
+                NextPaymentDate = DateTime.Now.AddDays(12),
+                Status = "Active",
+                PaidOnTime = true,
+                Payments = new List<Payment>
+                {
+                    new() { Date = DateTime.Now.AddMonths(-2), Amount = 3500, Method = "EFT", Status = "Successful", Reference = "PAY-013" }
+                }
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClientName = "Robert Brown",
+                LoanType = "Home Loan",
+                LoanReference = "HL-2024-005",
+                Amount = 18500,
+                TotalAmount = 370000,
+                TotalPaid = 185000,
+                InterestEarned = 27750,
+                DueDate = DateTime.Now.AddDays(8),
+                NextPaymentDate = DateTime.Now.AddDays(8),
+                Status = "Active",
+                PaidOnTime = true,
+                Payments = new List<Payment>
+                {
+                    new() { Date = DateTime.Now.AddMonths(-5), Amount = 18500, Method = "EFT", Status = "Successful", Reference = "PAY-014" },
+                    new() { Date = DateTime.Now.AddMonths(-4), Amount = 18500, Method = "EFT", Status = "Successful", Reference = "PAY-015" },
+                    new() { Date = DateTime.Now.AddMonths(-3), Amount = 18500, Method = "Credit Card", Status = "Successful", Reference = "PAY-016" },
+                    new() { Date = DateTime.Now.AddMonths(-2), Amount = 18500, Method = "EFT", Status = "Successful", Reference = "PAY-017" },
+                    new() { Date = DateTime.Now.AddMonths(-1), Amount = 18500, Method = "Debit Order", Status = "Successful", Reference = "PAY-018" }
+                }
+            }
+        };
+
+        UpdatePagination();
+    }
+
+    private List<InstallmentViewModel> GetFilteredInstallments()
+    {
+        var query = Installments.AsQueryable();
+
+        // Apply search filter
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            query = query.Where(i => 
+                i.ClientName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                i.LoanReference.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                i.LoanType.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Apply status filter
+        if (statusFilter != "all")
+        {
+            query = query.Where(i => 
+                i.Status.Equals(statusFilter, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Apply sorting
+        query = sortBy switch
+        {
+            "amount" => query.OrderByDescending(i => i.Amount),
+            "client" => query.OrderBy(i => i.ClientName),
+            _ => query.OrderBy(i => i.DueDate)
+        };
+
+        // Apply pagination
+        var filtered = query.ToList();
+        totalPages = (int)Math.Ceiling((double)filtered.Count / pageSize);
+        
+        return filtered
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    private void UpdatePagination()
+    {
+        var totalItems = Installments.Count;
+        totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+    }
+
+    private void ChangePage(int page)
+    {
+        if (page >= 1 && page <= totalPages)
+        {
+            currentPage = page;
+        }
+    }
+
+    private void ResetFilters()
+    {
+        searchTerm = "";
+        statusFilter = "all";
+        sortBy = "dueDate";
+        currentPage = 1;
+    }
+
+    private void TogglePaymentHistory(Guid id)
+    {
+        if (expandedInstallments.Contains(id))
+            expandedInstallments.Remove(id);
+        else
+            expandedInstallments.Add(id);
+    }
+
+    private void ViewInstallment(Guid id)
+    {
+        NavigationManager.NavigateTo($"/installments/view/{id}");
+    }
+
+    private void RecordPayment(Guid id)
+    {
+        NavigationManager.NavigateTo($"/installments/pay/{id}");
+    }
+
+    private void CreateNewLoan()
+    {
+        NavigationManager.NavigateTo("/applications/create");
+    }
+
+    private void ExportData()
+    {
+        // Export logic here
+        Console.WriteLine("Exporting data...");
+    }
+
+    private void RefreshData()
+    {
+        LoadSampleData();
+        Console.WriteLine("Data refreshed");
+    }
+
+    // Models
+    private class InstallmentViewModel
+    {
+        public Guid Id { get; set; }
+        public string ClientName { get; set; } = string.Empty;
+        public string LoanType { get; set; } = string.Empty;
+        public string LoanReference { get; set; } = string.Empty;
+        public decimal Amount { get; set; }
+        public decimal TotalAmount { get; set; }
+        public decimal TotalPaid { get; set; }
+        public decimal InterestEarned { get; set; }
+        public DateTime DueDate { get; set; }
+        public DateTime? NextPaymentDate { get; set; }
+        public string Status { get; set; } = "Active";
+        public bool PaidOnTime { get; set; }
+        public List<Payment> Payments { get; set; } = new();
+        public decimal ProgressPercentage => TotalAmount > 0 ? Math.Round((TotalPaid / TotalAmount) * 100, 2) : 0;
+        public int DaysUntilDue => (int)(DueDate - DateTime.Now).TotalDays;
+    }
+
+    private class Payment
+    {
+        public DateTime Date { get; set; }
+        public decimal Amount { get; set; }
+        public string Method { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public string Reference { get; set; } = string.Empty;
+    }
+}

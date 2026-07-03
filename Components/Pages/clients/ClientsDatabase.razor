@@ -1,0 +1,858 @@
+@page "/clients"
+@page "/customers"
+<PageTitle>Clients | RockSolid</PageTitle>
+@using BlazorApp.Models
+@inject NavigationManager NavigationManager
+
+<div class="clients-container">
+    <!-- Page Header -->
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-6 fw-bold text-primary mb-1">Client Database</h1>
+            <p class="text-secondary m-0">Manage and view all registered clients</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary rounded-pill px-4" @onclick="ExportClients">
+                <i class="bi bi-download me-2"></i>Export
+            </button>
+            <button class="btn btn-primary rounded-pill px-4" @onclick="AddNewClient">
+                <i class="bi bi-person-plus me-2"></i>Add Client
+            </button>
+        </div>
+    </div>
+
+    <!-- Client Summary Tiles -->
+    <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-lg-6">
+            <div class="summary-tile bg-white rounded-4 p-4 shadow-sm border-start border-4 border-primary">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-secondary m-0 small">Total Clients</p>
+                        <h3 class="fw-bold mt-1">@TotalClients</h3>
+                        <span class="badge bg-primary bg-opacity-10 text-primary">+@ClientGrowth% this month</span>
+                    </div>
+                    <div class="tile-icon bg-primary bg-opacity-10 rounded-3 p-3">
+                        <i class="bi bi-people fs-4 text-primary"></i>
+                    </div>
+                </div>
+                <div class="progress mt-2" style="height: 4px;">
+                    <div class="progress-bar bg-primary" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6">
+            <div class="summary-tile bg-white rounded-4 p-4 shadow-sm border-start border-4 border-success">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-secondary m-0 small">Active Clients</p>
+                        <h3 class="fw-bold mt-1">@ActiveClients</h3>
+                        <span class="badge bg-success bg-opacity-10 text-success">@ActivePercentage% of total</span>
+                    </div>
+                    <div class="tile-icon bg-success bg-opacity-10 rounded-3 p-3">
+                        <i class="bi bi-check-circle fs-4 text-success"></i>
+                    </div>
+                </div>
+                <div class="progress mt-2" style="height: 4px;">
+                    <div class="progress-bar bg-success" style="width: @ActivePercentage%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6">
+            <div class="summary-tile bg-white rounded-4 p-4 shadow-sm border-start border-4 border-warning">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-secondary m-0 small">Total Loans</p>
+                        <h3 class="fw-bold mt-1">@TotalLoans</h3>
+                        <span class="badge bg-warning bg-opacity-10 text-warning">@AverageLoansPerClient avg</span>
+                    </div>
+                    <div class="tile-icon bg-warning bg-opacity-10 rounded-3 p-3">
+                        <i class="bi bi-file-text fs-4 text-warning"></i>
+                    </div>
+                </div>
+                <div class="progress mt-2" style="height: 4px;">
+                    <div class="progress-bar bg-warning" style="width: @LoanPercentage%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6">
+            <div class="summary-tile bg-white rounded-4 p-4 shadow-sm border-start border-4 border-info">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-secondary m-0 small">Total Value</p>
+                        <h3 class="fw-bold mt-1">R@(string.Format("{0:N0}", TotalLoanValue))</h3>
+                        <span class="badge bg-info bg-opacity-10 text-info">R@(string.Format("{0:N0}", AverageLoanValue)) avg</span>
+                    </div>
+                    <div class="tile-icon bg-info bg-opacity-10 rounded-3 p-3">
+                        <i class="bi bi-currency-rand fs-4 text-info"></i>
+                    </div>
+                </div>
+                <div class="progress mt-2" style="height: 4px;">
+                    <div class="progress-bar bg-info" style="width: @ValuePercentage%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Type Distribution -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="distribution-card bg-white rounded-4 p-4 shadow-sm h-100">
+                <h6 class="fw-bold mb-3">Client Distribution</h6>
+                <div class="d-flex flex-wrap gap-4">
+                    <div>
+                        <span class="badge bg-primary me-2">Individual</span>
+                        <strong>@IndividualClients</strong>
+                        <small class="text-secondary ms-1">(@IndividualPercentage%)</small>
+                    </div>
+                    <div>
+                        <span class="badge bg-success me-2">Business</span>
+                        <strong>@BusinessClients</strong>
+                        <small class="text-secondary ms-1">(@BusinessPercentage%)</small>
+                    </div>
+                    <div>
+                        <span class="badge bg-warning me-2">Joint</span>
+                        <strong>@JointClients</strong>
+                        <small class="text-secondary ms-1">(@JointPercentage%)</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="distribution-card bg-white rounded-4 p-4 shadow-sm h-100">
+                <h6 class="fw-bold mb-3">Quick Actions</h6>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-outline-primary rounded-pill btn-sm">
+                        <i class="bi bi-person me-1"></i>View Individuals
+                    </button>
+                    <button class="btn btn-outline-success rounded-pill btn-sm">
+                        <i class="bi bi-building me-1"></i>View Businesses
+                    </button>
+                    <button class="btn btn-outline-warning rounded-pill btn-sm">
+                        <i class="bi bi-people me-1"></i>View Joint
+                    </button>
+                    <button class="btn btn-outline-secondary rounded-pill btn-sm" @onclick="ResetFilters">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & Filters -->
+    <div class="filter-bar bg-white rounded-4 p-3 shadow-sm mb-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-3">
+                <div class="search-box-modern">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="form-control border-0" placeholder="Search by name, email, ID..." @bind="searchTerm" @bind:event="oninput" />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select border-0 bg-light rounded-pill" @bind="clientTypeFilter">
+                    <option value="all">All Types</option>
+                    <option value="individual">Individual</option>
+                    <option value="business">Business</option>
+                    <option value="joint">Joint</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select border-0 bg-light rounded-pill" @bind="statusFilter">
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="suspended">Suspended</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select border-0 bg-light rounded-pill" @bind="sortBy">
+                    <option value="name">Sort by Name</option>
+                    <option value="date">Sort by Date</option>
+                    <option value="loans">Sort by Loans</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex gap-2 justify-content-md-end">
+                    <button class="btn btn-outline-secondary rounded-pill btn-sm" @onclick="ResetFilters">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clients Table -->
+    <div class="clients-table-container bg-white rounded-4 shadow-sm overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="px-4 py-3">Client</th>
+                        <th class="px-4 py-3">Contact</th>
+                        <th class="px-4 py-3">Type</th>
+                        <th class="px-4 py-3">Status</th>
+                        <th class="px-4 py-3">Loans</th>
+                        <th class="px-4 py-3">Total Value</th>
+                        <th class="px-4 py-3 text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var client in FilteredClients)
+                    {
+                        <tr class="client-row">
+                            <td class="px-4 py-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="client-avatar @(client.Status == "Active" ? "bg-success" : 
+                                                           client.Status == "Inactive" ? "bg-secondary" : "bg-danger") text-white d-flex align-items-center justify-content-center">
+                                        @(client.Name?.Substring(0, Math.Min(2, client.Name.Length)) ?? "U")
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">@client.Name</div>
+                                        <div class="small text-secondary">@client.ClientId</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="small">
+                                    <div><i class="bi bi-envelope me-1"></i>@client.Email</div>
+                                    <div><i class="bi bi-phone me-1"></i>@client.Phone</div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="badge @(client.Type == "Individual" ? "bg-primary" : 
+                                                    client.Type == "Business" ? "bg-success" : "bg-warning") rounded-pill">
+                                    @client.Type
+                                </span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="badge @(client.Status == "Active" ? "bg-success" : 
+                                                    client.Status == "Inactive" ? "bg-secondary" : "bg-danger") rounded-pill">
+                                    <i class="bi @(client.Status == "Active" ? "bi-check-circle" : 
+                                                   client.Status == "Inactive" ? "bi-circle" : "bi-exclamation-circle") me-1"></i>
+                                    @client.Status
+                                </span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="fw-bold">@client.TotalLoans</span>
+                                <span class="text-secondary small ms-1">active</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="fw-bold">R@(string.Format("{0:N0}", client.TotalLoanValue))</span>
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-outline-primary" @onclick='() => ViewClient(client.Id)' title="View">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary" @onclick='() => EditClient(client.Id)' title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success" @onclick='() => ViewClientLoans(client.Id)' title="View Loans">
+                                        <i class="bi bi-file-text"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick='() => ToggleClientStatus(client)' title="@(client.Status == "Active" ? "Suspend" : "Activate")">
+                                        <i class="bi @(client.Status == "Active" ? "bi-pause-circle" : "bi-play-circle")"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Empty State -->
+        @if (!FilteredClients.Any())
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-person-x display-1 text-secondary mb-3 d-block"></i>
+                <h5 class="fw-bold">No Clients Found</h5>
+                <p class="text-secondary">
+                    @if (!string.IsNullOrEmpty(searchTerm) || clientTypeFilter != "all" || statusFilter != "all")
+                    {
+                        <span>Try adjusting your filters or search criteria</span>
+                    }
+                    else
+                    {
+                        <span>Start adding clients to your system</span>
+                    }
+                </p>
+                <button class="btn btn-primary rounded-pill" @onclick="AddNewClient">
+                    <i class="bi bi-person-plus me-2"></i>Add First Client
+                </button>
+            </div>
+        }
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container mt-4">
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <button class="page-link" @onclick='() => ChangePage(currentPage - 1)'>Previous</button>
+                </li>
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <button class="page-link" @onclick='() => ChangePage(i)'>@i</button>
+                    </li>
+                }
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <button class="page-link" @onclick='() => ChangePage(currentPage + 1)'>Next</button>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<style>
+    .clients-container {
+        padding: 0.5rem;
+    }
+
+    .summary-tile {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: default;
+    }
+
+    .summary-tile:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.75rem 1.5rem rgba(0,0,0,.1) !important;
+    }
+
+    .tile-icon {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .distribution-card {
+        transition: transform 0.2s ease;
+    }
+
+    .distribution-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .filter-bar {
+        background: white;
+        border-radius: 1rem;
+    }
+
+    .search-box-modern {
+        display: flex;
+        align-items: center;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 0.25rem 0.75rem;
+        transition: all 0.2s ease;
+    }
+
+    .search-box-modern:focus-within {
+        background: white;
+        box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.2);
+    }
+
+    .search-box-modern i {
+        color: #6c757d;
+        margin-right: 0.5rem;
+    }
+
+    .search-box-modern input {
+        background: transparent;
+        border: none;
+        padding: 0.5rem 0;
+        outline: none;
+        width: 100%;
+    }
+
+    .clients-table-container {
+        overflow: hidden;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table thead th {
+        border-bottom: 2px solid #e9ecef;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6c757d;
+    }
+
+    .table tbody td {
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f3f5;
+    }
+
+    .client-row {
+        transition: background-color 0.2s ease;
+        cursor: default;
+    }
+
+    .client-row:hover {
+        background-color: #f8f9fa;
+    }
+
+    .client-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-weight: 600;
+        font-size: 0.875rem;
+        flex-shrink: 0;
+    }
+
+    .btn-group .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+        border-radius: 4px;
+    }
+
+    .btn-group .btn:not(:last-child) {
+        margin-right: 2px;
+    }
+
+    .form-select {
+        cursor: pointer;
+        font-size: 0.875rem;
+    }
+
+    .form-select:focus {
+        box-shadow: none;
+    }
+
+    .pagination .page-link {
+        border: none;
+        color: #495057;
+        border-radius: 8px;
+        margin: 0 2px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .pagination .page-link:hover {
+        background: #f8f9fa;
+        color: #667eea;
+    }
+
+    .pagination .page-item.active .page-link {
+        background: #667eea;
+        color: white;
+    }
+
+    .page-item.disabled .page-link {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .badge {
+        font-weight: 500;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .clients-container {
+            padding: 0;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 1rem;
+        }
+
+        .page-header .d-flex {
+            width: 100%;
+        }
+
+        .page-header .d-flex .btn {
+            flex: 1;
+        }
+
+        .filter-bar .row {
+            flex-direction: column;
+        }
+
+        .filter-bar .row .col-md-3,
+        .filter-bar .row .col-md-2 {
+            width: 100%;
+        }
+
+        .distribution-card .d-flex {
+            flex-direction: column;
+            gap: 0.5rem !important;
+        }
+
+        .table-responsive {
+            font-size: 0.8rem;
+        }
+
+        .table td, .table th {
+            padding: 0.75rem !important;
+        }
+
+        .client-avatar {
+            width: 32px;
+            height: 32px;
+            font-size: 0.75rem;
+        }
+
+        .btn-group .btn {
+            padding: 0.15rem 0.35rem;
+            font-size: 0.7rem;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .summary-tile h3 {
+            font-size: 1.25rem;
+        }
+
+        .tile-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .distribution-card .badge {
+            font-size: 0.7rem;
+        }
+    }
+</style>
+
+@code {
+    private string searchTerm = "";
+    private string clientTypeFilter = "all";
+    private string statusFilter = "all";
+    private string sortBy = "name";
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private int totalPages = 1;
+
+    private List<ClientViewModel> Clients = new();
+    private List<ClientViewModel> FilteredClients => GetFilteredClients();
+
+    // Summary Statistics
+    private int TotalClients => Clients.Count;
+    private int ActiveClients => Clients.Count(c => c.Status == "Active");
+    private int TotalLoans => Clients.Sum(c => c.TotalLoans);
+    private decimal TotalLoanValue => Clients.Sum(c => c.TotalLoanValue);
+    
+    private decimal ActivePercentage => TotalClients > 0 ? Math.Round((decimal)ActiveClients / TotalClients * 100, 2) : 0;
+    private decimal AverageLoansPerClient => TotalClients > 0 ? Math.Round((decimal)TotalLoans / TotalClients, 2) : 0;
+    private decimal AverageLoanValue => TotalClients > 0 ? TotalLoanValue / TotalClients : 0;
+    private double ClientGrowth => TotalClients > 0 ? Math.Round((double)TotalClients / 10 * 2.5, 2) : 0;
+    private decimal LoanPercentage => TotalLoans > 0 ? Math.Min(100, Math.Round((decimal)TotalLoans / 50 * 100, 2)) : 0;
+    private decimal ValuePercentage => TotalLoanValue > 0 ? Math.Min(100, Math.Round((decimal)TotalLoanValue / 5000000 * 100, 2)) : 0;
+
+    // Type Distribution
+    private int IndividualClients => Clients.Count(c => c.Type == "Individual");
+    private int BusinessClients => Clients.Count(c => c.Type == "Business");
+    private int JointClients => Clients.Count(c => c.Type == "Joint");
+    
+    private decimal IndividualPercentage => TotalClients > 0 ? Math.Round((decimal)IndividualClients / TotalClients * 100, 2) : 0;
+    private decimal BusinessPercentage => TotalClients > 0 ? Math.Round((decimal)BusinessClients / TotalClients * 100, 2) : 0;
+    private decimal JointPercentage => TotalClients > 0 ? Math.Round((decimal)JointClients / TotalClients * 100, 2) : 0;
+
+    protected override void OnInitialized()
+    {
+        LoadSampleData();
+    }
+
+    private void LoadSampleData()
+    {
+        Clients = new List<ClientViewModel>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClientId = "CLT-2024-001",
+                Name = "John Doe",
+                Email = "john.doe@email.com",
+                Phone = "+27 82 123 4567",
+                Type = "Individual",
+                Status = "Active",
+                TotalLoans = 2,
+                TotalLoanValue = 70000,
+                RegistrationDate = DateTime.Now.AddMonths(-6),
+                Address = "123 Main St, Cape Town",
+                IDNumber = "8505151234089"
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClientId = "CLT-2024-002",
+                Name = "Sarah Smith",
+                Email = "sarah.smith@email.com",
+                Phone = "+27 72 987 6543",
+                Type = "Individual",
+                Status = "Active",
+                TotalLoans = 1,
+                TotalLoanValue = 850000,
+                RegistrationDate = DateTime.Now.AddMonths(-4),
+                Address = "45 Oak Avenue, Johannesburg",
+                IDNumber = "8008222345089"
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClientId = "CLT-2024-003",
+                Name = "Johnson Enterprises",
+                Email = "info@johnson.co.za",
+                Phone = "+27 11 234 5678",
+                Type = "Business",
+                Status = "Active",
+                TotalLoans = 3,
+                TotalLoanValue = 2500000,
+                RegistrationDate = DateTime.Now.AddMonths(-12),
+                Address = "78 Business Park, Durban",
+                IDNumber = "2018/123456/07"
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClientId = "CLT-2024-004",
+                Name = "Emma Wilson",
+                Email = "emma.w@email.com",
+                Phone = "+27 71 234 5678",
+                Type = "Individual",
+                Status = "Inactive",
+                TotalLoans = 0,
+                TotalLoanValue = 0,
+                RegistrationDate = DateTime.Now.AddMonths(-8),
+                Address = "234 Park Street, Pretoria",
+                IDNumber = "9511284567890"
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClientId = "CLT-2024-005",
+                Name = "Robert Brown",
+                Email = "robert.b@email.com",
+                Phone = "+27 83 456 7890",
+                Type = "Individual",
+                Status = "Active",
+                TotalLoans = 2,
+                TotalLoanValue = 1500000,
+                RegistrationDate = DateTime.Now.AddMonths(-3),
+                Address = "567 Mountain View, Cape Town",
+                IDNumber = "7807035678901"
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClientId = "CLT-2024-006",
+                Name = "Lisa Anderson",
+                Email = "lisa.a@email.com",
+                Phone = "+27 74 567 8901",
+                Type = "Individual",
+                Status = "Active",
+                TotalLoans = 1,
+                TotalLoanValue = 75000,
+                RegistrationDate = DateTime.Now.AddMonths(-2),
+                Address = "123 Sunset Blvd, Durban",
+                IDNumber = "8809146789012"
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClientId = "CLT-2024-007",
+                Name = "Smith & Partners",
+                Email = "admin@smithpartners.co.za",
+                Phone = "+27 21 345 6789",
+                Type = "Business",
+                Status = "Suspended",
+                TotalLoans = 0,
+                TotalLoanValue = 0,
+                RegistrationDate = DateTime.Now.AddMonths(-10),
+                Address = "345 Legal Chambers, Cape Town",
+                IDNumber = "2020/789012/07"
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClientId = "CLT-2024-008",
+                Name = "David & Maria Thompson",
+                Email = "thompson.family@email.com",
+                Phone = "+27 62 345 6789",
+                Type = "Joint",
+                Status = "Active",
+                TotalLoans = 1,
+                TotalLoanValue = 320000,
+                RegistrationDate = DateTime.Now.AddMonths(-5),
+                Address = "456 Family Home, Johannesburg",
+                IDNumber = "Joint Application"
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClientId = "CLT-2024-009",
+                Name = "Michael Chang",
+                Email = "m.chang@email.com",
+                Phone = "+27 73 456 7890",
+                Type = "Individual",
+                Status = "Active",
+                TotalLoans = 2,
+                TotalLoanValue = 450000,
+                RegistrationDate = DateTime.Now.AddMonths(-1),
+                Address = "789 Business Ave, Cape Town",
+                IDNumber = "8901234567890"
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ClientId = "CLT-2024-010",
+                Name = "GreenTech Solutions",
+                Email = "info@greentech.co.za",
+                Phone = "+27 12 345 6789",
+                Type = "Business",
+                Status = "Active",
+                TotalLoans = 2,
+                TotalLoanValue = 1800000,
+                RegistrationDate = DateTime.Now.AddMonths(-7),
+                Address = "101 Tech Park, Pretoria",
+                IDNumber = "2019/456789/07"
+            }
+        };
+
+        UpdatePagination();
+    }
+
+    private List<ClientViewModel> GetFilteredClients()
+    {
+        var query = Clients.AsQueryable();
+
+        // Apply search filter
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            query = query.Where(c => 
+                c.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                c.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                c.ClientId.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                c.Phone.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                c.IDNumber.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Apply type filter
+        if (clientTypeFilter != "all")
+        {
+            var typeMapping = new Dictionary<string, string>
+            {
+                ["individual"] = "Individual",
+                ["business"] = "Business",
+                ["joint"] = "Joint"
+            };
+            if (typeMapping.ContainsKey(clientTypeFilter))
+            {
+                query = query.Where(c => c.Type == typeMapping[clientTypeFilter]);
+            }
+        }
+
+        // Apply status filter
+        if (statusFilter != "all")
+        {
+            query = query.Where(c => 
+                c.Status.Equals(statusFilter, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Apply sorting
+        query = sortBy switch
+        {
+            "date" => query.OrderByDescending(c => c.RegistrationDate),
+            "loans" => query.OrderByDescending(c => c.TotalLoans),
+            _ => query.OrderBy(c => c.Name)
+        };
+
+        // Apply pagination
+        var filtered = query.ToList();
+        totalPages = (int)Math.Ceiling((double)filtered.Count / pageSize);
+        
+        return filtered
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    private void UpdatePagination()
+    {
+        var totalItems = Clients.Count;
+        totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+    }
+
+    private void ChangePage(int page)
+    {
+        if (page >= 1 && page <= totalPages)
+        {
+            currentPage = page;
+        }
+    }
+
+    private void ResetFilters()
+    {
+        searchTerm = "";
+        clientTypeFilter = "all";
+        statusFilter = "all";
+        sortBy = "name";
+        currentPage = 1;
+    }
+
+    private void FilterByType(string type = "individual")
+    {
+        clientTypeFilter = type;
+        currentPage = 1;
+    }
+
+    private void ViewClient(Guid id)
+    {
+        NavigationManager.NavigateTo($"/clients/view/{id}");
+    }
+
+    private void EditClient(Guid id)
+    {
+        NavigationManager.NavigateTo($"/clients/edit/{id}");
+    }
+
+    private void ViewClientLoans(Guid id)
+    {
+        NavigationManager.NavigateTo($"/clients/loans/{id}");
+    }
+
+    private void ToggleClientStatus(ClientViewModel client)
+    {
+        client.Status = client.Status == "Active" ? "Suspended" : "Active";
+    }
+
+    private void AddNewClient()
+    {
+        NavigationManager.NavigateTo("/clients/create");
+    }
+
+    private void ExportClients()
+    {
+        Console.WriteLine("Exporting clients data...");
+    }
+
+    // Model Class
+    private class ClientViewModel
+    {
+        public Guid Id { get; set; }
+        public string ClientId { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public string Type { get; set; } = "Individual";
+        public string Status { get; set; } = "Active";
+        public int TotalLoans { get; set; }
+        public decimal TotalLoanValue { get; set; }
+        public DateTime RegistrationDate { get; set; }
+        public string Address { get; set; } = string.Empty;
+        public string IDNumber { get; set; } = string.Empty;
+    }
+}

@@ -1,0 +1,1007 @@
+@page "/applications"
+@page "/loans/applications"
+<PageTitle>Applications | RockSolid</PageTitle>
+@using BlazorApp.Models
+@inject NavigationManager NavigationManager
+
+<div class="applications-container">
+    <!-- Page Header -->
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-6 fw-bold text-primary mb-1">Loan Applications</h1>
+            <p class="text-secondary m-0">Review and manage all loan applications</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary rounded-pill px-4" @onclick="ExportApplications">
+                <i class="bi bi-download me-2"></i>Export
+            </button>
+            <button class="btn btn-primary rounded-pill px-4" @onclick="CreateNewApplication">
+                <i class="bi bi-plus-lg me-2"></i>New Application
+            </button>
+        </div>
+    </div>
+
+    <!-- Application Summary Tiles -->
+    <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-lg-6">
+            <div class="summary-tile bg-white rounded-4 p-4 shadow-sm border-start border-4 border-primary">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-secondary m-0 small">Total Applications</p>
+                        <h3 class="fw-bold mt-1">@TotalApplications</h3>
+                        <span class="badge bg-primary bg-opacity-10 text-primary">@(TotalApplications > 0 ? "+" : "")@TotalGrowth%</span>
+                    </div>
+                    <div class="tile-icon bg-primary bg-opacity-10 rounded-3 p-3">
+                        <i class="bi bi-file-text fs-4 text-primary"></i>
+                    </div>
+                </div>
+                <div class="progress mt-2" style="height: 4px;">
+                    <div class="progress-bar bg-primary" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6">
+            <div class="summary-tile bg-white rounded-4 p-4 shadow-sm border-start border-4 border-warning">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-secondary m-0 small">Pending Review</p>
+                        <h3 class="fw-bold mt-1">@PendingApplications</h3>
+                        <span class="badge bg-warning bg-opacity-10 text-warning">@(PendingApplications > 0 ? "Needs attention" : "All reviewed")</span>
+                    </div>
+                    <div class="tile-icon bg-warning bg-opacity-10 rounded-3 p-3">
+                        <i class="bi bi-hourglass-split fs-4 text-warning"></i>
+                    </div>
+                </div>
+                <div class="progress mt-2" style="height: 4px;">
+                    <div class="progress-bar bg-warning" style="width: @PendingPercentage%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6">
+            <div class="summary-tile bg-white rounded-4 p-4 shadow-sm border-start border-4 border-success">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-secondary m-0 small">Approved</p>
+                        <h3 class="fw-bold mt-1">@ApprovedApplications</h3>
+                        <span class="badge bg-success bg-opacity-10 text-success">@ApprovalRate% approval rate</span>
+                    </div>
+                    <div class="tile-icon bg-success bg-opacity-10 rounded-3 p-3">
+                        <i class="bi bi-check-circle fs-4 text-success"></i>
+                    </div>
+                </div>
+                <div class="progress mt-2" style="height: 4px;">
+                    <div class="progress-bar bg-success" style="width: @ApprovedPercentage%"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6">
+            <div class="summary-tile bg-white rounded-4 p-4 shadow-sm border-start border-4 border-danger">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-secondary m-0 small">Total Value</p>
+                        <h3 class="fw-bold mt-1">R@(string.Format("{0:N0}", TotalValue))</h3>
+                        <span class="badge bg-danger bg-opacity-10 text-danger">@(TotalValue > 0 ? "+" : "")@ValueGrowth%</span>
+                    </div>
+                    <div class="tile-icon bg-danger bg-opacity-10 rounded-3 p-3">
+                        <i class="bi bi-currency-rand fs-4 text-danger"></i>
+                    </div>
+                </div>
+                <div class="progress mt-2" style="height: 4px;">
+                    <div class="progress-bar bg-danger" style="width: @ValuePercentage%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Filters -->
+    <div class="quick-filters bg-white rounded-4 p-3 shadow-sm mb-4">
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <span class="fw-semibold me-2 small">Quick Filter:</span>
+            <button class="btn @(quickFilter == "all" ? "btn-primary" : "btn-outline-secondary") rounded-pill btn-sm" @onclick='() => SetQuickFilter("all")'>
+                All (@TotalApplications)
+            </button>
+            <button class="btn @(quickFilter == "pending" ? "btn-warning" : "btn-outline-secondary") rounded-pill btn-sm" @onclick='() => SetQuickFilter("pending")'>
+                <i class="bi bi-hourglass me-1"></i>Pending (@PendingApplications)
+            </button>
+            <button class="btn @(quickFilter == "approved" ? "btn-success" : "btn-outline-secondary") rounded-pill btn-sm" @onclick='() => SetQuickFilter("approved")'>
+                <i class="bi bi-check-circle me-1"></i>Approved (@ApprovedApplications)
+            </button>
+            <button class="btn @(quickFilter == "rejected" ? "btn-danger" : "btn-outline-secondary") rounded-pill btn-sm" @onclick='() => SetQuickFilter("rejected")'>
+                <i class="bi bi-x-circle me-1"></i>Rejected (@RejectedApplications)
+            </button>
+            <button class="btn @(quickFilter == "inprogress" ? "btn-info" : "btn-outline-secondary") rounded-pill btn-sm" @onclick='() => SetQuickFilter("inprogress")'>
+                <i class="bi bi-arrow-repeat me-1"></i>In Progress (@InProgressApplications)
+            </button>
+        </div>
+    </div>
+
+    <!-- Search & Advanced Filters -->
+    <div class="filter-bar bg-white rounded-4 p-3 shadow-sm mb-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-3">
+                <div class="search-box-modern">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="form-control border-0" placeholder="Search by name, ID, email..." @bind="searchTerm" @bind:event="oninput" />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select border-0 bg-light rounded-pill" @bind="loanTypeFilter">
+                    <option value="all">All Loan Types</option>
+                    <option value="personal">Personal Loan</option>
+                    <option value="home">Home Loan</option>
+                    <option value="car">Car Loan</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select border-0 bg-light rounded-pill" @bind="amountRange">
+                    <option value="all">All Amounts</option>
+                    <option value="0-10000">R0 - R10,000</option>
+                    <option value="10000-50000">R10,000 - R50,000</option>
+                    <option value="50000-100000">R50,000 - R100,000</option>
+                    <option value="100000+">R100,000+</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex gap-2">
+                    <input type="date" class="form-control border-0 bg-light rounded-pill" placeholder="From" @bind="dateFrom" />
+                    <input type="date" class="form-control border-0 bg-light rounded-pill" placeholder="To" @bind="dateTo" />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-secondary rounded-pill btn-sm w-100" @onclick="ResetFilters">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i>Reset All
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Applications List -->
+    <div class="applications-list">
+        @foreach (var app in FilteredApplications)
+        {
+            <div class="application-card card shadow-sm border-0 rounded-4 mb-3 overflow-hidden">
+                <div class="row g-0">
+                    <div class="col-md-8">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h5 class="fw-bold mb-1">@app.ApplicantName</h5>
+                                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                                        <span class="badge bg-light text-dark rounded-pill">
+                                            <i class="bi bi-envelope me-1"></i>@app.Email
+                                        </span>
+                                        <span class="badge bg-light text-dark rounded-pill">
+                                            <i class="bi bi-phone me-1"></i>@app.Phone
+                                        </span>
+                                        <span class="badge bg-light text-dark rounded-pill">
+                                            <i class="bi bi-hash me-1"></i>@app.ApplicationId
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge @(app.Status == "Approved" ? "bg-success" : 
+                                                        app.Status == "Rejected" ? "bg-danger" : 
+                                                        app.Status == "Pending" ? "bg-warning" : "bg-info") rounded-pill px-3 py-2">
+                                        <i class="bi @(app.Status == "Approved" ? "bi-check-circle" : 
+                                                        app.Status == "Rejected" ? "bi-x-circle" : 
+                                                        app.Status == "Pending" ? "bi-hourglass" : "bi-arrow-repeat") me-1"></i>
+                                        @app.Status
+                                    </span>
+                                    <div class="mt-1">
+                                        <small class="text-secondary">Applied: @app.ApplicationDate.ToString("dd MMM yyyy")</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-3">
+                                    <small class="text-secondary d-block">Loan Type</small>
+                                    <strong class="text-primary">@app.LoanType</strong>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-secondary d-block">Amount Applied</small>
+                                    <strong class="fs-5">R@(string.Format("{0:N0}", app.AmountApplied))</strong>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-secondary d-block">Term</small>
+                                    <strong>@app.Term months</strong>
+                                </div>
+                                <div class="col-md-3">
+                                    <small class="text-secondary d-block">Interest Rate</small>
+                                    <strong>@app.InterestRate%</strong>
+                                </div>
+                            </div>
+
+                            <!-- Additional Details -->
+                            <div class="application-details mt-3">
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <small class="text-secondary d-block">Employment Status</small>
+                                        <span class="badge bg-light text-dark">@app.EmploymentStatus</span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <small class="text-secondary d-block">Monthly Income</small>
+                                        <span>R@(string.Format("{0:N0}", app.MonthlyIncome))</span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <small class="text-secondary d-block">Credit Score</small>
+                                        <span class="fw-semibold @(app.CreditScore >= 700 ? "text-success" : app.CreditScore >= 600 ? "text-warning" : "text-danger")">
+                                            @app.CreditScore
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Notes Section -->
+                            @if (!string.IsNullOrEmpty(app.Notes))
+                            {
+                                <div class="notes-section mt-3 p-2 bg-light rounded-3">
+                                    <i class="bi bi-sticky text-secondary me-1"></i>
+                                    <small class="text-secondary">@app.Notes</small>
+                                </div>
+                            }
+
+                            <!-- Expand for More Details -->
+                            <button class="btn btn-link text-primary p-0 mt-2" @onclick='() => ToggleDetails(app.Id)'>
+                                <i class="bi bi-chevron-down me-1"></i>
+                                @(expandedApplications.Contains(app.Id) ? "Hide" : "Show") Full Details
+                            </button>
+
+                            @if (expandedApplications.Contains(app.Id))
+                            {
+                                <div class="full-details mt-3 p-3 bg-light rounded-3">
+                                    <h6 class="fw-bold mb-2">Full Application Details</h6>
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <small class="text-secondary d-block">Date of Birth</small>
+                                            <span>@app.DateOfBirth.ToString("dd MMM yyyy")</span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <small class="text-secondary d-block">ID Number</small>
+                                            <span>@app.IDNumber</span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <small class="text-secondary d-block">Address</small>
+                                            <span>@app.Address</span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <small class="text-secondary d-block">Purpose of Loan</small>
+                                            <span>@app.Purpose</span>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <small class="text-secondary d-block">Documents Provided</small>
+                                            <div class="d-flex flex-wrap gap-1">
+                                                @foreach (var doc in app.Documents)
+                                                {
+                                                    <span class="badge bg-primary bg-opacity-10 text-primary">@doc</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-4" style="background: @(app.Status == "Approved" ? "linear-gradient(135deg, #28a74510, #20c99710)" : 
+                                                       app.Status == "Rejected" ? "linear-gradient(135deg, #dc354510, #ff6b6b10)" : 
+                                                       app.Status == "Pending" ? "linear-gradient(135deg, #ffc10710, #f8d7da10)" : 
+                                                       "linear-gradient(135deg, #667eea10, #764ba210)")">
+                        <div class="card-body p-4 d-flex flex-column h-100 justify-content-between">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-secondary d-block">Status</small>
+                                    <span class="badge @(app.Status == "Approved" ? "bg-success" : 
+                                                        app.Status == "Rejected" ? "bg-danger" : 
+                                                        app.Status == "Pending" ? "bg-warning" : "bg-info") rounded-pill">
+                                        @app.Status
+                                    </span>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-secondary d-block">Application Progress</small>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="progress flex-grow-1" style="height: 6px;">
+                                            <div class="progress-bar @(GetProgressPercentage(app.Status) == 100 ? "bg-success" : "bg-primary")" 
+                                                 style="width: @GetProgressPercentage(app.Status)%"></div>
+                                        </div>
+                                        <span class="small fw-bold">@GetProgressPercentage(app.Status)%</span>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-secondary d-block">Processing Time</small>
+                                    <span class="fw-semibold">@GetProcessingDays(app) days</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    @if (app.Status == "Pending" || app.Status == "In Progress")
+                                    {
+                                        <button class="btn btn-success rounded-pill btn-sm flex-grow-1" @onclick='() => ApproveApplication(app)'>
+                                            <i class="bi bi-check-lg me-1"></i>Approve
+                                        </button>
+                                        <button class="btn btn-danger rounded-pill btn-sm flex-grow-1" @onclick='() => RejectApplication(app)'>
+                                            <i class="bi bi-x-lg me-1"></i>Reject
+                                        </button>
+                                    }
+                                    <button class="btn btn-outline-primary rounded-pill btn-sm flex-grow-1" @onclick='() => ViewApplication(app.Id)'>
+                                        <i class="bi bi-eye me-1"></i>Details
+                                    </button>
+                                    <button class="btn btn-outline-secondary rounded-pill btn-sm flex-grow-1" @onclick='() => EditApplication(app.Id)'>
+                                        <i class="bi bi-pencil me-1"></i>Edit
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Empty State -->
+    @if (!FilteredApplications.Any())
+    {
+        <div class="empty-state text-center py-5">
+            <div class="card shadow-sm border-0 rounded-4 p-5 mx-auto" style="max-width: 500px;">
+                <i class="bi bi-inbox display-1 text-secondary mb-3"></i>
+                <h3 class="fw-bold">No Applications Found</h3>
+                <p class="text-secondary mb-4">
+                    @if (!string.IsNullOrEmpty(searchTerm) || quickFilter != "all" || loanTypeFilter != "all")
+                    {
+                        <span>Try adjusting your filters or search criteria</span>
+                    }
+                    else
+                    {
+                        <span>Start receiving loan applications from your clients</span>
+                    }
+                </p>
+                <button class="btn btn-primary rounded-pill btn-lg px-5" @onclick="CreateNewApplication">
+                    <i class="bi bi-plus-lg me-2"></i>Create Application
+                </button>
+            </div>
+        </div>
+    }
+
+    <!-- Pagination -->
+    <div class="pagination-container mt-4">
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <button class="page-link" @onclick='() => ChangePage(currentPage - 1)'>Previous</button>
+                </li>
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <button class="page-link" @onclick='() => ChangePage(i)'>@i</button>
+                    </li>
+                }
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <button class="page-link" @onclick='() => ChangePage(currentPage + 1)'>Next</button>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<style>
+    .applications-container {
+        padding: 0.5rem;
+    }
+
+    .summary-tile {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: default;
+    }
+
+    .summary-tile:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.75rem 1.5rem rgba(0,0,0,.1) !important;
+    }
+
+    .tile-icon {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .quick-filters {
+        background: white;
+        border-radius: 1rem;
+        overflow-x: auto;
+    }
+
+    .quick-filters .btn {
+        white-space: nowrap;
+    }
+
+    .filter-bar {
+        background: white;
+        border-radius: 1rem;
+    }
+
+    .search-box-modern {
+        display: flex;
+        align-items: center;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 0.25rem 0.75rem;
+        transition: all 0.2s ease;
+    }
+
+    .search-box-modern:focus-within {
+        background: white;
+        box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.2);
+    }
+
+    .search-box-modern i {
+        color: #6c757d;
+        margin-right: 0.5rem;
+    }
+
+    .search-box-modern input {
+        background: transparent;
+        border: none;
+        padding: 0.5rem 0;
+        outline: none;
+        width: 100%;
+    }
+
+    .application-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .application-card:hover {
+        transform: translateX(3px);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,.1) !important;
+    }
+
+    .application-details {
+        padding: 0.5rem 0;
+    }
+
+    .notes-section {
+        border-left: 3px solid #667eea;
+        padding-left: 0.75rem;
+    }
+
+    .full-details {
+        border-radius: 8px;
+        font-size: 0.9rem;
+    }
+
+    .form-select {
+        cursor: pointer;
+        font-size: 0.875rem;
+    }
+
+    .form-select:focus {
+        box-shadow: none;
+    }
+
+    input[type="date"] {
+        cursor: pointer;
+        font-size: 0.875rem;
+    }
+
+    input[type="date"]:focus {
+        box-shadow: none;
+    }
+
+    .progress {
+        background-color: #e9ecef;
+    }
+
+    .progress-bar {
+        transition: width 0.6s ease;
+    }
+
+    .pagination .page-link {
+        border: none;
+        color: #495057;
+        border-radius: 8px;
+        margin: 0 2px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .pagination .page-link:hover {
+        background: #f8f9fa;
+        color: #667eea;
+    }
+
+    .pagination .page-item.active .page-link {
+        background: #667eea;
+        color: white;
+    }
+
+    .page-item.disabled .page-link {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .badge {
+        font-weight: 500;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .applications-container {
+            padding: 0;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 1rem;
+        }
+
+        .page-header .d-flex {
+            width: 100%;
+        }
+
+        .page-header .d-flex .btn {
+            flex: 1;
+        }
+
+        .filter-bar .row {
+            flex-direction: column;
+        }
+
+        .filter-bar .row .col-md-3,
+        .filter-bar .row .col-md-2 {
+            width: 100%;
+        }
+
+        .filter-bar .d-flex {
+            flex-direction: column;
+        }
+
+        .filter-bar input[type="date"] {
+            width: 100%;
+        }
+
+        .quick-filters {
+            padding: 0.75rem;
+        }
+
+        .quick-filters .d-flex {
+            gap: 0.5rem;
+        }
+
+        .application-card .col-md-8 {
+            order: 2;
+        }
+
+        .application-card .col-md-4 {
+            order: 1;
+        }
+
+        .application-card .card-body {
+            padding: 1.5rem !important;
+        }
+
+        .application-details .row {
+            flex-direction: column;
+        }
+
+        .application-details .col-md-4 {
+            margin-bottom: 0.5rem;
+        }
+
+        .full-details .row {
+            flex-direction: column;
+        }
+
+        .full-details .col-md-6 {
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .summary-tile h3 {
+            font-size: 1.25rem;
+        }
+
+        .tile-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .application-card .col-md-3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-group-vertical-sm {
+            flex-direction: column;
+        }
+    }
+</style>
+
+@code {
+    private string searchTerm = "";
+    private string loanTypeFilter = "all";
+    private string amountRange = "all";
+    private DateTime dateFrom = new DateTime();
+    private DateTime dateTo = new DateTime();
+    private string quickFilter = "all";
+    private int currentPage = 1;
+    private int pageSize = 5;
+    private int totalPages = 1;
+
+    private List<ApplicationViewModel> Applications = new();
+    private List<ApplicationViewModel> FilteredApplications => GetFilteredApplications();
+    private HashSet<Guid> expandedApplications = new();
+
+    // Summary Statistics
+    private int TotalApplications => Applications.Count;
+    private int PendingApplications => Applications.Count(a => a.Status == "Pending");
+    private int ApprovedApplications => Applications.Count(a => a.Status == "Approved");
+    private int RejectedApplications => Applications.Count(a => a.Status == "Rejected");
+    private int InProgressApplications => Applications.Count(a => a.Status == "In Progress");
+    private decimal TotalValue => Applications.Sum(a => a.AmountApplied);
+    private decimal ApprovalRate => TotalApplications > 0 ? Math.Round((decimal)ApprovedApplications / TotalApplications * 100, 2) : 0;
+    private decimal TotalGrowth => TotalApplications > 0 ? Math.Round((decimal)TotalApplications / 100 * 5, 2) : 0;
+    private decimal ValueGrowth => TotalValue > 0 ? Math.Round((decimal)TotalValue / 1000 * 3, 2) : 0;
+    private decimal PendingPercentage => TotalApplications > 0 ? Math.Round((decimal)PendingApplications / TotalApplications * 100, 2) : 0;
+    private decimal ApprovedPercentage => TotalApplications > 0 ? Math.Round((decimal)ApprovedApplications / TotalApplications * 100, 2) : 0;
+    private decimal ValuePercentage => TotalValue > 0 ? Math.Min(100, Math.Round((decimal)TotalValue / 1000000 * 100, 2)) : 0;
+
+    protected override void OnInitialized()
+    {
+        LoadSampleData();
+    }
+
+    private void LoadSampleData()
+    {
+        Applications = new List<ApplicationViewModel>
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ApplicationId = "APP-2024-001",
+                ApplicantName = "John Doe",
+                Email = "john.doe@email.com",
+                Phone = "+27 82 123 4567",
+                LoanType = "Personal Loan",
+                AmountApplied = 25000,
+                Term = 24,
+                InterestRate = 12.5,
+                Status = "Pending",
+                ApplicationDate = DateTime.Now.AddDays(-3),
+                EmploymentStatus = "Employed - Permanent",
+                MonthlyIncome = 18500,
+                CreditScore = 685,
+                DateOfBirth = new DateTime(1985, 5, 15),
+                IDNumber = "8505151234089",
+                Address = "123 Main St, Cape Town, 8001",
+                Purpose = "Debt Consolidation",
+                Notes = "Client has good credit history. Need to verify income documents.",
+                Documents = new List<string> { "ID Copy", "Payslips (3 months)", "Bank Statements" }
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ApplicationId = "APP-2024-002",
+                ApplicantName = "Sarah Smith",
+                Email = "sarah.smith@email.com",
+                Phone = "+27 72 987 6543",
+                LoanType = "Home Loan",
+                AmountApplied = 850000,
+                Term = 240,
+                InterestRate = 8.75,
+                Status = "In Progress",
+                ApplicationDate = DateTime.Now.AddDays(-7),
+                EmploymentStatus = "Self-Employed",
+                MonthlyIncome = 45000,
+                CreditScore = 720,
+                DateOfBirth = new DateTime(1980, 8, 22),
+                IDNumber = "8008222345089",
+                Address = "45 Oak Avenue, Johannesburg, 2001",
+                Purpose = "Property Purchase",
+                Notes = "Client is purchasing first home. Valuation report pending.",
+                Documents = new List<string> { "ID Copy", "Tax Returns (2 years)", "Bank Statements", "Property Valuation" }
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ApplicationId = "APP-2024-003",
+                ApplicantName = "Mike Johnson",
+                Email = "mike.j@email.com",
+                Phone = "+27 64 555 7890",
+                LoanType = "Car Loan",
+                AmountApplied = 180000,
+                Term = 60,
+                InterestRate = 10.25,
+                Status = "Approved",
+                ApplicationDate = DateTime.Now.AddDays(-14),
+                EmploymentStatus = "Employed - Contract",
+                MonthlyIncome = 32000,
+                CreditScore = 750,
+                DateOfBirth = new DateTime(1990, 3, 10),
+                IDNumber = "9003103456789",
+                Address = "78 Beach Road, Durban, 4001",
+                Purpose = "Vehicle Purchase",
+                Notes = "Approved conditionally. Awaiting proof of insurance.",
+                Documents = new List<string> { "ID Copy", "Payslips (3 months)", "Drivers License", "Vehicle Quote" }
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ApplicationId = "APP-2024-004",
+                ApplicantName = "Emma Wilson",
+                Email = "emma.w@email.com",
+                Phone = "+27 71 234 5678",
+                LoanType = "Personal Loan",
+                AmountApplied = 15000,
+                Term = 12,
+                InterestRate = 14.0,
+                Status = "Rejected",
+                ApplicationDate = DateTime.Now.AddDays(-5),
+                EmploymentStatus = "Unemployed",
+                MonthlyIncome = 0,
+                CreditScore = 520,
+                DateOfBirth = new DateTime(1995, 11, 28),
+                IDNumber = "9511284567890",
+                Address = "234 Park Street, Pretoria, 0002",
+                Purpose = "Education Expenses",
+                Notes = "Application rejected due to insufficient income and low credit score.",
+                Documents = new List<string> { "ID Copy", "Unemployment Letter", "Course Registration" }
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ApplicationId = "APP-2024-005",
+                ApplicantName = "Robert Brown",
+                Email = "robert.b@email.com",
+                Phone = "+27 83 456 7890",
+                LoanType = "Home Loan",
+                AmountApplied = 1200000,
+                Term = 300,
+                InterestRate = 7.5,
+                Status = "Pending",
+                ApplicationDate = DateTime.Now.AddDays(-1),
+                EmploymentStatus = "Employed - Permanent",
+                MonthlyIncome = 58000,
+                CreditScore = 710,
+                DateOfBirth = new DateTime(1978, 7, 3),
+                IDNumber = "7807035678901",
+                Address = "567 Mountain View, Cape Town, 8005",
+                Purpose = "Property Purchase & Renovation",
+                Notes = "Large loan amount. Requires additional verification.",
+                Documents = new List<string> { "ID Copy", "Payslips (6 months)", "Bank Statements", "Property Quote" }
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                ApplicationId = "APP-2024-006",
+                ApplicantName = "Lisa Anderson",
+                Email = "lisa.a@email.com",
+                Phone = "+27 74 567 8901",
+                LoanType = "Car Loan",
+                AmountApplied = 75000,
+                Term = 48,
+                InterestRate = 11.0,
+                Status = "Approved",
+                ApplicationDate = DateTime.Now.AddDays(-10),
+                EmploymentStatus = "Employed - Permanent",
+                MonthlyIncome = 25000,
+                CreditScore = 680,
+                DateOfBirth = new DateTime(1988, 9, 14),
+                IDNumber = "8809146789012",
+                Address = "123 Sunset Blvd, Durban, 4001",
+                Purpose = "Vehicle Purchase",
+                Notes = "Approved. Documents verified.",
+                Documents = new List<string> { "ID Copy", "Payslips (3 months)", "Drivers License" }
+            }
+        };
+
+        UpdatePagination();
+    }
+
+    private List<ApplicationViewModel> GetFilteredApplications()
+    {
+        var query = Applications.AsQueryable();
+
+        // Apply search filter
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            query = query.Where(a => 
+                a.ApplicantName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                a.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                a.ApplicationId.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                a.Phone.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Apply quick filter
+        if (quickFilter != "all")
+        {
+            var statusMapping = new Dictionary<string, string>
+            {
+                ["pending"] = "Pending",
+                ["approved"] = "Approved",
+                ["rejected"] = "Rejected",
+                ["inprogress"] = "In Progress"
+            };
+            if (statusMapping.ContainsKey(quickFilter))
+            {
+                query = query.Where(a => a.Status == statusMapping[quickFilter]);
+            }
+        }
+
+        // Apply loan type filter
+        if (loanTypeFilter != "all")
+        {
+            var typeMapping = new Dictionary<string, string>
+            {
+                ["personal"] = "Personal Loan",
+                ["home"] = "Home Loan",
+                ["car"] = "Car Loan"
+            };
+            if (typeMapping.ContainsKey(loanTypeFilter))
+            {
+                query = query.Where(a => a.LoanType == typeMapping[loanTypeFilter]);
+            }
+        }
+
+        // Apply amount range filter
+        if (amountRange != "all")
+        {
+            query = amountRange switch
+            {
+                "0-10000" => query.Where(a => a.AmountApplied <= 10000),
+                "10000-50000" => query.Where(a => a.AmountApplied > 10000 && a.AmountApplied <= 50000),
+                "50000-100000" => query.Where(a => a.AmountApplied > 50000 && a.AmountApplied <= 100000),
+                "100000+" => query.Where(a => a.AmountApplied > 100000),
+                _ => query
+            };
+        }
+
+        // Apply date range filter
+        @* if (!string.IsNullOrEmpty(dateFrom))
+        {
+            if (DateTime.TryParse(dateFrom, out var fromDate))
+            {
+                query = query.Where(a => a.ApplicationDate >= fromDate);
+            }
+        }
+        if (!string.IsNullOrEmpty(dateTo))
+        {
+            if (DateTime.TryParse(dateTo, out var toDate))
+            {
+                query = query.Where(a => a.ApplicationDate <= toDate);
+            }
+        } *@
+
+        // Apply sorting (newest first)
+        query = query.OrderByDescending(a => a.ApplicationDate);
+
+        // Apply pagination
+        var filtered = query.ToList();
+        totalPages = (int)Math.Ceiling((double)filtered.Count / pageSize);
+        
+        return filtered
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+    }
+
+    private void UpdatePagination()
+    {
+        var totalItems = Applications.Count;
+        totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+    }
+
+    private void ChangePage(int page)
+    {
+        if (page >= 1 && page <= totalPages)
+        {
+            currentPage = page;
+        }
+    }
+
+    private void ResetFilters()
+    {
+        searchTerm = "";
+        loanTypeFilter = "all";
+        amountRange = "all";
+        dateFrom = new DateTime();
+        dateTo = new DateTime();
+        quickFilter = "all";
+        currentPage = 1;
+    }
+
+    private void SetQuickFilter(string filter)
+    {
+        quickFilter = filter;
+        currentPage = 1;
+    }
+
+    private void ToggleDetails(Guid id)
+    {
+        if (expandedApplications.Contains(id))
+            expandedApplications.Remove(id);
+        else
+            expandedApplications.Add(id);
+    }
+
+    private int GetProgressPercentage(string status)
+    {
+        return status switch
+        {
+            "Pending" => 25,
+            "In Progress" => 50,
+            "Approved" => 100,
+            "Rejected" => 100,
+            _ => 0
+        };
+    }
+
+    private int GetProcessingDays(ApplicationViewModel app)
+    {
+        if (app.Status == "Pending" || app.Status == "In Progress")
+        {
+            return (int)(DateTime.Now - app.ApplicationDate).TotalDays;
+        }
+        return 0;
+    }
+
+    private void ApproveApplication(ApplicationViewModel app)
+    {
+        app.Status = "Approved";
+    }
+
+    private void RejectApplication(ApplicationViewModel app)
+    {
+        app.Status = "Rejected";
+    }
+
+    private void ViewApplication(Guid id)
+    {
+        NavigationManager.NavigateTo($"/applications/view/{id}");
+    }
+
+    private void EditApplication(Guid id)
+    {
+        NavigationManager.NavigateTo($"/applications/edit/{id}");
+    }
+
+    private void CreateNewApplication()
+    {
+        NavigationManager.NavigateTo("/applications/create");
+    }
+
+    private void ExportApplications()
+    {
+        Console.WriteLine("Exporting applications data...");
+    }
+
+    // Model Class
+    private class ApplicationViewModel
+    {
+        public Guid Id { get; set; }
+        public string ApplicationId { get; set; } = string.Empty;
+        public string ApplicantName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public string LoanType { get; set; } = string.Empty;
+        public decimal AmountApplied { get; set; }
+        public int Term { get; set; }
+        public double InterestRate { get; set; }
+        public string Status { get; set; } = "Pending";
+        public DateTime ApplicationDate { get; set; }
+        public string EmploymentStatus { get; set; } = string.Empty;
+        public decimal MonthlyIncome { get; set; }
+        public int CreditScore { get; set; }
+        public DateTime DateOfBirth { get; set; }
+        public string IDNumber { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string Purpose { get; set; } = string.Empty;
+        public string Notes { get; set; } = string.Empty;
+        public List<string> Documents { get; set; } = new();
+    }
+}
