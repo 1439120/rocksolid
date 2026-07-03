@@ -1,6 +1,7 @@
 @page "/home"
 @using BlazorApp.Components.Reusbale
 @using BlazorApp.Models
+@inject ClientDatabaseService ClientDbService
 
 <PageTitle>Home</PageTitle>
 
@@ -8,8 +9,13 @@
     <!-- welcome + stats -->
     <div class="welcome-stats">
         <div class="welcome-text">
-            <h2>👋 Welcome back, Alex</h2>
-            <p>Your trusted partner for smart lending.</p>
+            @if(User?.Name.Length > 0){
+                <h2>👋 Welcome back, @User?.Name</h2>
+                <p>Your trusted partner for smart lending.</p>
+            }
+            else{
+                <p>World no #1 fastest lender</p>
+            }
         </div>
         <div class="stats-group">
             <div class="stat-item">
@@ -61,6 +67,22 @@
 </div>
 
 @code{
+    private ClientDatabase? User;
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState{get; set;}
+    protected override async Task OnInitializedAsync()
+    {
+        if(authenticationState != null){
+            var authState = await authenticationState;
+            var userClaims = authState.User;
+            var userId = userClaims.FindFirst("UserId")?.Value;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var users = await ClientDbService.GetClientByUserId(userId);
+                User = users.FirstOrDefault();
+            }
+        }
+    }
     private List<CardInfo> LoanInfos = new()
     {
         new CardInfo{

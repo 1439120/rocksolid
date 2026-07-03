@@ -1,5 +1,7 @@
 ﻿@inherits LayoutComponentBase
-
+@using BlazorApp.Models;
+@using Microsoft.AspNetCore.Components.Authorization
+@inject ClientDatabaseService ClientDbService
 <div class="layout">
 
     <aside class="sidebar">
@@ -56,10 +58,20 @@
                         <h1>Rock<span>Solid</span></h1>
                     </div>
                     <div class="auth-buttons">
-                        <span class="avatar"><i class="bi bi-person-circle"></i></span>
-                        <span style="font-weight:500; color:#1e3c72;">Alex</span>
-                        <button class="btn btn-logout" disabled><i class="bi bi-box-arrow-right"></i> Logout</button>
-                        <button class="btn btn-primary" disabled><i class="bi bi-lock"></i> Login</button>
+                        @if(User?.Name.Length > 0){
+                            <span class="avatar"><i class="bi bi-person-circle"></i></span>
+                            <span style="font-weight:500; color:#1e3c72;">@User?.Name @User?.Surname</span>
+                        }
+                        @if(isLoggedIn){
+                            <NavLink href="/logout">
+                                <button class="btn btn-logout"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                            </NavLink>
+                        }
+                        else{
+                            <NavLink href="/login">
+                                <button class="btn btn-primary"><i class="bi bi-lock"></i> Login</button>
+                            </NavLink>
+                        }
                     </div>
                 </div>
                 <div class="content-scroll">
@@ -77,3 +89,24 @@
     An unhandled error has occurred.
     <a href=".">Reload</a>
 </div>
+
+@code{
+    private ClientDatabase? User;
+    bool isLoggedIn{get;set;} = false;
+    protected override async Task OnInitializedAsync()
+    {
+        if(authenticationState != null){
+            var authState = await authenticationState;
+            var userClaims = authState.User;
+            var userId = userClaims.FindFirst("UserId")?.Value;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var users = await ClientDbService.GetClientByUserId(userId);
+                User = users.FirstOrDefault();
+                isLoggedIn = true;
+            }
+        }
+    }
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState{get; set;}
+}
